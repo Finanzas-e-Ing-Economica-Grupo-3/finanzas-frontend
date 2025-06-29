@@ -112,22 +112,37 @@ const SettingsForm: React.FC = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Configuración del Sistema</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Configuración de Moneda</h3>
-            
-            <div className="space-y-2">
-              <Label htmlFor="default-currency">Moneda Predeterminada</Label>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">Configuración</h1>
+        <p className="text-muted-foreground">
+          Personaliza las configuraciones predeterminadas para tus bonos
+        </p>
+      </div>
+
+      {/* Configuration Cards */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        {/* Currency Configuration */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-6">
+            <CardTitle className="text-xl flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-bond-green/10 flex items-center justify-center">
+                <span className="text-bond-green font-bold text-lg">$</span>
+              </div>
+              Configuración de Moneda
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <div className="space-y-4">
+              <Label htmlFor="default-currency" className="text-sm font-medium">
+                Moneda Predeterminada
+              </Label>
               <Select 
                 value={defaultCurrency} 
                 onValueChange={(value) => setDefaultCurrency(value as CurrencyType)}
               >
-                <SelectTrigger id="default-currency">
+                <SelectTrigger id="default-currency" className="h-12">
                   <SelectValue placeholder="Seleccionar moneda" />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,35 +153,46 @@ const SettingsForm: React.FC = () => {
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label>Símbolos de Moneda</Label>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="p-2 border rounded-md text-center">
-                  <p className="font-medium">PEN</p>
-                  <p className="text-lg">S/</p>
+            <div className="space-y-4">
+              <Label className="text-sm font-medium">Símbolos de Moneda</Label>
+              <div className="grid grid-cols-3 gap-4">
+                <div className={`p-4 border-2 rounded-lg text-center hover:bg-muted/50 transition-all cursor-pointer ${defaultCurrency === 'PEN' ? 'border-bond-green bg-bond-green/5' : 'border-border'}`}>
+                  <p className="font-semibold text-xs text-muted-foreground mb-1">PEN</p>
+                  <p className="text-2xl font-bold">S/</p>
                 </div>
-                <div className="p-2 border rounded-md text-center">
-                  <p className="font-medium">USD</p>
-                  <p className="text-lg">$</p>
+                <div className={`p-4 border-2 rounded-lg text-center hover:bg-muted/50 transition-all cursor-pointer ${defaultCurrency === 'USD' ? 'border-bond-green bg-bond-green/5' : 'border-border'}`}>
+                  <p className="font-semibold text-xs text-muted-foreground mb-1">USD</p>
+                  <p className="text-2xl font-bold">$</p>
                 </div>
-                <div className="p-2 border rounded-md text-center">
-                  <p className="font-medium">EUR</p>
-                  <p className="text-lg">€</p>
+                <div className={`p-4 border-2 rounded-lg text-center hover:bg-muted/50 transition-all cursor-pointer ${defaultCurrency === 'EUR' ? 'border-bond-green bg-bond-green/5' : 'border-border'}`}>
+                  <p className="font-semibold text-xs text-muted-foreground mb-1">EUR</p>
+                  <p className="text-2xl font-bold">€</p>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Configuración de Tasas</h3>
-            
-            <div className="space-y-2">
-              <Label htmlFor="default-interest-type">Tipo de Tasa Predeterminada</Label>
+          </CardContent>
+        </Card>
+        
+        {/* Interest Rate Configuration */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-6">
+            <CardTitle className="text-xl flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-bond-blue/10 flex items-center justify-center">
+                <span className="text-bond-blue font-bold text-lg">%</span>
+              </div>
+              Configuración de Tasas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <div className="space-y-4">
+              <Label htmlFor="default-interest-type" className="text-sm font-medium">
+                Tipo de Tasa Predeterminada
+              </Label>
               <Select 
                 value={defaultInterestType} 
                 onValueChange={setDefaultInterestType}
               >
-                <SelectTrigger id="default-interest-type">
+                <SelectTrigger id="default-interest-type" className="h-12">
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,14 +202,21 @@ const SettingsForm: React.FC = () => {
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="default-capitalization">Capitalización Predeterminada</Label>
+            <div className="space-y-4">
+              <Label htmlFor="default-capitalization" className="text-sm font-medium flex items-center gap-2">
+                Capitalización Predeterminada
+                {defaultInterestType !== "Nominal" && (
+                  <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
+                    Solo para tasas nominales
+                  </span>
+                )}
+              </Label>
               <Select 
                 value={defaultCapitalization} 
                 onValueChange={setDefaultCapitalization}
                 disabled={defaultInterestType !== "Nominal"}
               >
-                <SelectTrigger id="default-capitalization">
+                <SelectTrigger id="default-capitalization" className="h-12">
                   <SelectValue placeholder="Seleccionar capitalización" />
                 </SelectTrigger>
                 <SelectContent>
@@ -195,39 +228,25 @@ const SettingsForm: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Save Button */}
+      <Card className="shadow-sm">
+        <CardContent className="pt-6">
+          <div className="flex justify-end">
+            <Button 
+              onClick={handleSave} 
+              className="bg-bond-green text-black hover:bg-bond-green/80 px-8 h-12 text-base font-medium" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Guardando..." : "Guardar Configuración"}
+            </Button>
           </div>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Preferencias de Visualización</h3>
-          
-          <div className="flex items-center justify-between">
-            <Label htmlFor="dark-mode">Modo Oscuro</Label>
-            <Switch id="dark-mode" checked disabled />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <Label htmlFor="decimals">Mostrar 4 decimales en porcentajes</Label>
-            <Switch id="decimals" defaultChecked />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <Label htmlFor="auto-save">Guardar automáticamente</Label>
-            <Switch id="auto-save" />
-          </div>
-        </div>
-        
-        <div className="flex justify-end">
-          <Button 
-            onClick={handleSave} 
-            className="bg-bond-green text-black hover:bg-bond-green/80" 
-            disabled={isLoading}
-          >
-            {isLoading ? "Guardando..." : "Guardar Configuración"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

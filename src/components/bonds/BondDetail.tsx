@@ -62,13 +62,13 @@ const BondDetailComponent: React.FC = () => {
           interestRate: data.interest_rate,
           term: data.term,
           frequency: data.frequency,
-          amortizationType: data.amortization_type,
-          graceType: data.grace_type,
+          amortizationType: data.amortization_type as "French" | "German" | "American",
+          graceType: data.grace_type as "None" | "Partial" | "Total",
           gracePeriods: data.grace_periods,
           emissionDate: data.emission_date,
           settings: {
-            currency: data.currency,
-            interestRateType: data.interest_rate_type,
+            currency: data.currency as "USD" | "PEN" | "EUR",
+            interestRateType: data.interest_rate_type as "Effective" | "Nominal",
             capitalization: data.capitalization || undefined
           },
           createdAt: data.created_at,

@@ -132,220 +132,264 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
   };
 
   return (
-    <Card className="w-full mx-auto">
-      <CardHeader>
-        <CardTitle>{isEditing ? "Editar Bono" : "Crear Nuevo Bono"}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Basic Bond Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Información Básica</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="name">Nombre del Bono</Label>
-                <Input 
-                  id="name" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  required 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="nominal-value">Valor Nominal</Label>
-                <Input 
-                  id="nominal-value" 
-                  type="number" 
-                  value={nominalValue} 
-                  onChange={(e) => setNominalValue(e.target.value)} 
-                  min="0"
-                  step="0.01"
-                  required 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="interest-rate">Tasa de Interés (%)</Label>
-                <Input 
-                  id="interest-rate" 
-                  type="number" 
-                  value={interestRate} 
-                  onChange={(e) => setInterestRate(e.target.value)} 
-                  min="0"
-                  step="0.01"
-                  required 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="term">Plazo (años)</Label>
-                <Input 
-                  id="term" 
-                  type="number" 
-                  value={term} 
-                  onChange={(e) => setTerm(e.target.value)} 
-                  min="1"
-                  step="1"
-                  required 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="frequency">Frecuencia de Pago</Label>
-                <Select 
-                  value={frequency} 
-                  onValueChange={setFrequency}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar frecuencia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Anual</SelectItem>
-                    <SelectItem value="2">Semestral</SelectItem>
-                    <SelectItem value="4">Trimestral</SelectItem>
-                    <SelectItem value="12">Mensual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="emission-date">Fecha de Emisión</Label>
-                <Input 
-                  id="emission-date" 
-                  type="date" 
-                  value={emissionDate} 
-                  onChange={(e) => setEmissionDate(e.target.value)} 
-                  required 
-                />
-              </div>
-            </div>
-            
-            {/* Amortization and Grace Settings */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Configuración de Amortización</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="amortization-type">Tipo de Amortización</Label>
-                <Select 
-                  value={amortizationType} 
-                  onValueChange={(value) => setAmortizationType(value as AmortizationType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="American">Americano</SelectItem>
-                    <SelectItem value="German">Alemán</SelectItem>
-                    <SelectItem value="French">Francés</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="grace-type">Tipo de Periodo de Gracia</Label>
-                <Select 
-                  value={graceType} 
-                  onValueChange={(value) => setGraceType(value as GraceType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="None">Sin periodo de gracia</SelectItem>
-                    <SelectItem value="Partial">Parcial</SelectItem>
-                    <SelectItem value="Total">Total</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {graceType !== "None" && (
-                <div className="space-y-2">
-                  <Label htmlFor="grace-periods">Número de Periodos de Gracia</Label>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight">
+          {isEditing ? "Editar Bono" : "Crear Nuevo Bono"}
+        </h1>
+        <p className="text-muted-foreground">
+          {isEditing ? "Modifica los parámetros de tu bono" : "Configura los parámetros financieros de tu nuevo bono"}
+        </p>
+      </div>
+
+      <Card className="shadow-sm">
+        <CardContent className="pt-8">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Basic Bond Information */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-10 rounded-lg bg-bond-blue/10 flex items-center justify-center">
+                    <span className="text-bond-blue font-bold text-lg">📊</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Información Básica</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="name" className="text-sm font-medium">Nombre del Bono</Label>
                   <Input 
-                    id="grace-periods" 
+                    id="name" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    className="h-12"
+                    placeholder="Ej: Bono Gobierno 2025"
+                    required 
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="nominal-value" className="text-sm font-medium">Valor Nominal</Label>
+                  <Input 
+                    id="nominal-value" 
                     type="number" 
-                    value={gracePeriods} 
-                    onChange={(e) => setGracePeriods(e.target.value)} 
+                    value={nominalValue} 
+                    onChange={(e) => setNominalValue(e.target.value)} 
+                    className="h-12"
+                    placeholder="1000"
                     min="0"
+                    step="0.01"
+                    required 
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="interest-rate" className="text-sm font-medium">Tasa de Interés (%)</Label>
+                  <Input 
+                    id="interest-rate" 
+                    type="number" 
+                    value={interestRate} 
+                    onChange={(e) => setInterestRate(e.target.value)} 
+                    className="h-12"
+                    placeholder="5.5"
+                    min="0"
+                    step="0.01"
+                    required 
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="term" className="text-sm font-medium">Plazo (años)</Label>
+                  <Input 
+                    id="term" 
+                    type="number" 
+                    value={term} 
+                    onChange={(e) => setTerm(e.target.value)} 
+                    className="h-12"
+                    placeholder="5"
+                    min="1"
                     step="1"
                     required 
                   />
                 </div>
-              )}
-              
-              <Separator className="my-4" />
-              
-              <h3 className="text-lg font-medium">Configuración de Moneda y Tasa</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="currency">Moneda</Label>
-                <Select 
-                  value={currency} 
-                  onValueChange={(value) => setCurrency(value as CurrencyType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar moneda" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PEN">Soles (PEN)</SelectItem>
-                    <SelectItem value="USD">Dólares (USD)</SelectItem>
-                    <SelectItem value="EUR">Euros (EUR)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="interest-rate-type">Tipo de Tasa de Interés</Label>
-                <Select 
-                  value={interestRateType} 
-                  onValueChange={(value) => setInterestRateType(value as InterestRateType)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Effective">Efectiva</SelectItem>
-                    <SelectItem value="Nominal">Nominal</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {interestRateType === "Nominal" && (
-                <div className="space-y-2">
-                  <Label htmlFor="capitalization">Capitalización</Label>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="frequency" className="text-sm font-medium">Frecuencia de Pago</Label>
                   <Select 
-                    value={capitalization} 
-                    onValueChange={setCapitalization}
+                    value={frequency} 
+                    onValueChange={setFrequency}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar capitalización" />
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccionar frecuencia" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Annual">Anual</SelectItem>
-                      <SelectItem value="Semiannual">Semestral</SelectItem>
-                      <SelectItem value="Quarterly">Trimestral</SelectItem>
-                      <SelectItem value="Monthly">Mensual</SelectItem>
-                      <SelectItem value="Daily">Diaria</SelectItem>
+                      <SelectItem value="1">Anual (1 vez por año)</SelectItem>
+                      <SelectItem value="2">Semestral (2 veces por año)</SelectItem>
+                      <SelectItem value="4">Trimestral (4 veces por año)</SelectItem>
+                      <SelectItem value="12">Mensual (12 veces por año)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
+                
+                <div className="space-y-4">
+                  <Label htmlFor="emission-date" className="text-sm font-medium">Fecha de Emisión</Label>
+                  <Input 
+                    id="emission-date" 
+                    type="date" 
+                    value={emissionDate} 
+                    onChange={(e) => setEmissionDate(e.target.value)} 
+                    className="h-12"
+                    required 
+                  />
+                </div>
+              </div>
+              
+              {/* Amortization and Grace Settings */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-10 rounded-lg bg-bond-green/10 flex items-center justify-center">
+                    <span className="text-bond-green font-bold text-lg">⚙️</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Configuración de Amortización</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="amortization-type" className="text-sm font-medium">Tipo de Amortización</Label>
+                  <Select 
+                    value={amortizationType} 
+                    onValueChange={(value) => setAmortizationType(value as AmortizationType)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccionar tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="American">Americano (Al vencimiento)</SelectItem>
+                      <SelectItem value="German">Alemán (Cuota decreciente)</SelectItem>
+                      <SelectItem value="French">Francés (Cuota constante)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="grace-type" className="text-sm font-medium">Tipo de Periodo de Gracia</Label>
+                  <Select 
+                    value={graceType} 
+                    onValueChange={(value) => setGraceType(value as GraceType)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccionar tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">Sin periodo de gracia</SelectItem>
+                      <SelectItem value="Partial">Parcial (Solo intereses)</SelectItem>
+                      <SelectItem value="Total">Total (Sin pagos)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {graceType !== "None" && (
+                  <div className="space-y-4">
+                    <Label htmlFor="grace-periods" className="text-sm font-medium">Número de Periodos de Gracia</Label>
+                    <Input 
+                      id="grace-periods" 
+                      type="number" 
+                      value={gracePeriods} 
+                      onChange={(e) => setGracePeriods(e.target.value)} 
+                      className="h-12"
+                      placeholder="2"
+                      min="0"
+                      step="1"
+                      required 
+                    />
+                  </div>
+                )}
+                
+                <div className="pt-4">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+                      <span className="text-yellow-600 font-bold text-lg">💰</span>
+                    </div>
+                    <h3 className="text-xl font-semibold">Configuración de Moneda y Tasa</h3>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="currency" className="text-sm font-medium">Moneda</Label>
+                  <Select 
+                    value={currency} 
+                    onValueChange={(value) => setCurrency(value as CurrencyType)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccionar moneda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PEN">🇵🇪 Soles (PEN)</SelectItem>
+                      <SelectItem value="USD">🇺🇸 Dólares (USD)</SelectItem>
+                      <SelectItem value="EUR">🇪🇺 Euros (EUR)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label htmlFor="interest-rate-type" className="text-sm font-medium">Tipo de Tasa de Interés</Label>
+                  <Select 
+                    value={interestRateType} 
+                    onValueChange={(value) => setInterestRateType(value as InterestRateType)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccionar tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Effective">Efectiva (TEA)</SelectItem>
+                      <SelectItem value="Nominal">Nominal (TNA)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {interestRateType === "Nominal" && (
+                  <div className="space-y-4">
+                    <Label htmlFor="capitalization" className="text-sm font-medium">Capitalización</Label>
+                    <Select 
+                      value={capitalization} 
+                      onValueChange={setCapitalization}
+                    >
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Seleccionar capitalización" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Annual">Anual</SelectItem>
+                        <SelectItem value="Semiannual">Semestral</SelectItem>
+                        <SelectItem value="Quarterly">Trimestral</SelectItem>
+                        <SelectItem value="Monthly">Mensual</SelectItem>
+                        <SelectItem value="Daily">Diaria</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => navigate("/bonds")}>
-              Cancelar
-            </Button>
-            <Button type="submit" className="bg-bond-green text-black hover:bg-bond-green/80" disabled={isLoading}>
-              {isLoading ? "Guardando..." : isEditing ? "Actualizar Bono" : "Crear Bono"}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+            
+            <div className="flex justify-end gap-4 pt-6 border-t">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate("/bonds")}
+                className="h-12 px-8"
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-bond-green text-black hover:bg-bond-green/80 h-12 px-8 text-base font-medium" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Guardando..." : isEditing ? "Actualizar Bono" : "Crear Bono"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

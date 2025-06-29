@@ -45,13 +45,13 @@ const EditBond = () => {
           interestRate: data.interest_rate,
           term: data.term,
           frequency: data.frequency,
-          amortizationType: data.amortization_type,
-          graceType: data.grace_type,
+          amortizationType: data.amortization_type as Bond['amortizationType'],
+          graceType: data.grace_type as Bond['graceType'],
           gracePeriods: data.grace_periods,
           emissionDate: data.emission_date,
           settings: {
-            currency: data.currency,
-            interestRateType: data.interest_rate_type,
+            currency: data.currency as Bond['settings']['currency'],
+            interestRateType: data.interest_rate_type as Bond['settings']['interestRateType'],
             capitalization: data.capitalization || undefined
           },
           createdAt: data.created_at,
