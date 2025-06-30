@@ -167,15 +167,6 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <Label className="text-sm font-medium">ID de Usuario</Label>
-                    <div className="p-4 bg-muted/50 rounded-lg border">
-                      <p className="font-mono text-xs text-muted-foreground break-all">
-                        {profile.id}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
                     <Label className="text-sm font-medium">Estado de la Cuenta</Label>
                     <div className="flex items-center gap-3 p-3 rounded-lg border border-green-200">
                       <div className="h-3 w-3 bg-green-500 rounded-full"></div>

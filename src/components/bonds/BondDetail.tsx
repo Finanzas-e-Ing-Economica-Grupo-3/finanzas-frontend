@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { Bond, CashFlow, BondAnalysis } from "@/types/bond";
 import { calculateCashFlow, analyzeBond } from "@/utils/bondCalculations";
+import { generateBondReportPDF } from "@/utils/pdfGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -221,6 +222,13 @@ const BondDetailComponent: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">{bond.name}</h1>
         <div className="space-x-2">
+          <Button 
+            variant="secondary"
+            onClick={() => generateBondReportPDF(bond, cashFlow, bondAnalysis)}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            📄 Descargar PDF
+          </Button>
           <Button 
             variant="outline"
             onClick={() => navigate(`/bonds/${id}/edit`)}

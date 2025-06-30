@@ -10,11 +10,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Plus, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { Bond, CashFlow, BondAnalysis } from "@/types/bond";
+import { calculateCashFlow, analyzeBond } from "@/utils/bondCalculations";
+import { generateBondReportPDF } from "@/utils/pdfGenerator";
 
 interface BondListItem {
   id: string;
@@ -77,6 +80,54 @@ const BondList: React.FC = () => {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
+  };
+
+  const generatePDFFromList = async (bondItem: BondListItem) => {
+    try {
+      // Fetch complete bond data
+      const { data: bondData, error: bondError } = await supabase
+        .from('bonds')
+        .select('*')
+        .eq('id', bondItem.id)
+        .eq('user_id', user!.id)
+        .single();
+
+      if (bondError) throw bondError;
+
+      // Transform to Bond interface
+      const bond: Bond = {
+        id: bondData.id,
+        name: bondData.name,
+        nominalValue: bondData.nominal_value,
+        interestRate: bondData.interest_rate,
+        term: bondData.term,
+        frequency: bondData.frequency,
+        amortizationType: bondData.amortization_type as Bond['amortizationType'],
+        graceType: bondData.grace_type as Bond['graceType'],
+        gracePeriods: bondData.grace_periods,
+        emissionDate: bondData.emission_date,
+        settings: {
+          currency: bondData.currency as Bond['settings']['currency'],
+          interestRateType: bondData.interest_rate_type as Bond['settings']['interestRateType'],
+          capitalization: bondData.capitalization || undefined
+        },
+        createdAt: bondData.created_at,
+        updatedAt: bondData.updated_at,
+        userId: bondData.user_id
+      };
+
+      // Calculate cash flows and analysis
+      const cashFlow = calculateCashFlow(bond);
+      const analysis = analyzeBond(bond, cashFlow, 5.0); // Default market rate
+
+      // Generate PDF
+      generateBondReportPDF(bond, cashFlow, analysis);
+      
+      toast.success('PDF generado exitosamente');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Error al generar el PDF');
+    }
   };
 
   if (loading) {
@@ -207,14 +258,29 @@ const BondList: React.FC = () => {
                       </TableCell>
                       <TableCell className="py-4">{new Date(bond.emission_date).toLocaleDateString('es-PE')}</TableCell>
                       <TableCell className="text-center py-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/bonds/${bond.id}`)}
-                          className="hover:bg-bond-blue/10 h-8 w-8 p-0"
-                        >
-                          <FileText className="h-4 w-4 text-bond-blue" />
-                        </Button>
+                        <div className="flex items-center justify-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/bonds/${bond.id}`)}
+                            className="hover:bg-bond-blue/10 h-8 w-8 p-0"
+                            title="Ver detalles"
+                          >
+                            <FileText className="h-4 w-4 text-bond-blue" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              generatePDFFromList(bond);
+                            }}
+                            className="hover:bg-green-600/10 h-8 w-8 p-0"
+                            title="Descargar PDF"
+                          >
+                            <Download className="h-4 w-4 text-green-600" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
