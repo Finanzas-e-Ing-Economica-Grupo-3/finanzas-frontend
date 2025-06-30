@@ -433,7 +433,7 @@ const BondDetailComponent: React.FC = () => {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button variant="outline" onClick={() => window.print()}>
-            Imprimir Reporte
+            Descargar Reporte
           </Button>
         </CardFooter>
       </Card>

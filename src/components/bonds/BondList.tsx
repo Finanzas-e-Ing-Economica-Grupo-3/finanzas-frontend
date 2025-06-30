@@ -101,6 +101,15 @@ const BondList: React.FC = () => {
             Gestiona y visualiza todos tus bonos registrados
           </p>
         </div>
+        {bonds.length > 0 && (
+          <Button
+            className="bg-bond-green text-black hover:bg-bond-green/80 h-11 px-6"
+            onClick={() => navigate("/bonds/new")}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Bono
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}

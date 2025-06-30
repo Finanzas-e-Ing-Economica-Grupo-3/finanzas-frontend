@@ -1,5 +1,21 @@
-
 import { AmortizationType, Bond, BondAnalysis, CashFlow, GraceType, InterestRateType } from "@/types/bond";
+
+/**
+ * MÉTRICAS FINANCIERAS DE BONOS
+ * 
+ * TCEA (Tasa de Costo Efectiva Anual):
+ * - Perspectiva del EMISOR del bono
+ * - Representa el costo efectivo anual del financiamiento
+ * - Ecuación: -Valor_Nominal + Σ(Pago_t / (1+TCEA)^t) = 0
+ * 
+ * TREA (Tasa de Rendimiento Efectiva Anual):
+ * - Perspectiva del INVERSOR/COMPRADOR del bono
+ * - Representa el rendimiento efectivo anual de la inversión
+ * - Ecuación: -Precio_Pagado + Σ(Pago_t / (1+TREA)^t) = 0
+ * 
+ * Para un bono sin prima/descuento (precio = valor nominal):
+ * - TCEA = TREA = Tasa de interés del bono
+ */
 
 // Function to calculate cash flow
 export function calculateCashFlow(bond: Bond): CashFlow[] {
@@ -120,11 +136,13 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
   const durationInYears = macaulayDuration / bond.frequency;
   const modifiedDurationInYears = modifiedDuration / bond.frequency;
   
-  // Calculate TCEA (issuer perspective) - Internal Rate of Return of cash flows
-  const tcea = calculateIRR(bond.nominalValue, cashFlow.map(cf => cf.payment)) * 100;
+  // Calculate TCEA (issuer perspective) - Effective Annual Cost Rate
+  // From issuer's perspective: they receive nominal value, pay out the cash flows
+  const tcea = calculateTCEA(bond, cashFlow);
   
-  // Calculate TREA (investor perspective) - Effective Annual Yield
-  const trea = (Math.pow(1 + tcea / 100, 1) - 1) * 100;
+  // Calculate TREA (investor perspective) - Effective Annual Yield Rate  
+  // From investor's perspective: they pay market price, receive the cash flows
+  const trea = calculateTREA(presentValue, cashFlow, bond.frequency);
   
   return {
     convexity,
@@ -136,32 +154,65 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
   };
 }
 
-// Calculate Internal Rate of Return (IRR)
-function calculateIRR(initialInvestment: number, cashFlows: number[]): number {
-  // Simple IRR calculation using Newton-Raphson method
-  const MAX_ITERATIONS = 100;
-  const PRECISION = 0.0000001;
+// Calculate TCEA (Tasa de Costo Efectiva Anual) - Issuer perspective
+function calculateTCEA(bond: Bond, cashFlow: CashFlow[]): number {
+  // For the issuer: they receive the nominal value at t=0, pay out the cash flows
+  // TCEA satisfies: -NominalValue + Σ(Payment_t / (1+TCEA)^t) = 0
+  const flows = [-bond.nominalValue, ...cashFlow.map(cf => cf.payment)];
+  const periodicRate = calculateIRR(flows);
   
-  const flows = [-initialInvestment, ...cashFlows];
+  // Convert periodic rate to annual effective rate
+  const annualRate = Math.pow(1 + periodicRate, bond.frequency) - 1;
+  return annualRate * 100;
+}
+
+// Calculate TREA (Tasa de Rendimiento Efectiva Anual) - Investor perspective  
+function calculateTREA(marketPrice: number, cashFlow: CashFlow[], frequency: number): number {
+  // For the investor: they pay the market price at t=0, receive the cash flows
+  // TREA satisfies: -MarketPrice + Σ(Payment_t / (1+TREA)^t) = 0
+  const flows = [-marketPrice, ...cashFlow.map(cf => cf.payment)];
+  const periodicRate = calculateIRR(flows);
   
-  let guess = 0.1; // Initial guess
+  // Convert periodic rate to annual effective rate
+  const annualRate = Math.pow(1 + periodicRate, frequency) - 1;
+  return annualRate * 100;
+}
+
+// Calculate Internal Rate of Return (IRR) using Newton-Raphson method
+function calculateIRR(cashFlows: number[]): number {
+  const MAX_ITERATIONS = 1000;
+  const PRECISION = 0.000001;
+  
+  // Better initial guess based on simple return
+  let guess = 0.05; // Start with 5%
+  
+  // Handle edge cases
+  if (cashFlows.length < 2) return 0;
   
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const npv = calculateNPV(flows, guess);
-    const derivativeNpv = calculateDerivativeNPV(flows, guess);
+    const npv = calculateNPV(cashFlows, guess);
+    const derivativeNpv = calculateDerivativeNPV(cashFlows, guess);
     
+    // Check for convergence
+    if (Math.abs(npv) < PRECISION) {
+      break;
+    }
+    
+    // Avoid division by zero
     if (Math.abs(derivativeNpv) < PRECISION) {
       break;
     }
     
     const newGuess = guess - npv / derivativeNpv;
     
+    // Check for convergence
     if (Math.abs(newGuess - guess) < PRECISION) {
       guess = newGuess;
       break;
     }
     
-    guess = newGuess;
+    // Prevent negative rates from going too negative (practical limit)
+    guess = Math.max(newGuess, -0.99);
   }
   
   return guess;
@@ -175,6 +226,7 @@ function calculateNPV(cashFlows: number[], rate: number): number {
 
 function calculateDerivativeNPV(cashFlows: number[], rate: number): number {
   return cashFlows.reduce((derivative, flow, index) => {
+    if (index === 0) return derivative; // Skip t=0 in derivative calculation
     return derivative - (index * flow) / Math.pow(1 + rate, index + 1);
   }, 0);
 }

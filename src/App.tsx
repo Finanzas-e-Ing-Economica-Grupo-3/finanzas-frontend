@@ -14,7 +14,6 @@ import Bonds from "./pages/Bonds";
 import NewBond from "./pages/NewBond";
 import EditBond from "./pages/EditBond";
 import BondDetail from "./pages/BondDetail";
-import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -36,7 +35,6 @@ const App = () => (
               <Route path="/bonds/new" element={<ProtectedRoute><NewBond /></ProtectedRoute>} />
               <Route path="/bonds/:id" element={<ProtectedRoute><BondDetail /></ProtectedRoute>} />
               <Route path="/bonds/:id/edit" element={<ProtectedRoute><EditBond /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>

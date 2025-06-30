@@ -139,12 +139,6 @@ const AppSidebar: React.FC = () => {
           isActive={isLinkActive("/bonds")}
         />
         <NavItem
-          to="/settings"
-          icon={<Settings size={20} />}
-          label="Configuración"
-          isActive={isLinkActive("/settings")}
-        />
-        <NavItem
           to="/profile"
           icon={<User size={20} />}
           label="Perfil"
