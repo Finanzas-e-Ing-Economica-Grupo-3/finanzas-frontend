@@ -35,25 +35,8 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
     
     // Calculate amortization based on type and grace period
     if (!isGracePeriod) {
-      switch (amortizationType) {
-        case "American":
-          // No amortization until last period, only interest payments
-          amortization = period === totalPeriods ? initialBalance : 0;
-          break;
-          
-        case "German":
-          // Equal amortization each period
-          amortization = nominalValue / (totalPeriods - gracePeriods);
-          break;
-          
-        case "French":
-          // Equal total payment each period
-          const remainingPeriods = totalPeriods - period + 1;
-          // Formula for fixed payment: P = r * PV / (1 - (1+r)^-n)
-          payment = periodRate * initialBalance / (1 - Math.pow(1 + periodRate, -remainingPeriods));
-          amortization = payment - interest;
-          break;
-      }
+      // American method: No amortization until last period, only interest payments
+      amortization = period === totalPeriods ? initialBalance : 0;
     } else if (graceType === "Partial") {
       // Partial grace: interest payments but no amortization
       amortization = 0;
@@ -64,10 +47,7 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
       interest = 0; // Interest is not paid but added to the principal
     }
     
-    // If payment was not calculated in French method
-    if (amortizationType !== "French" || isGracePeriod) {
-      payment = interest + amortization;
-    }
+    payment = interest + amortization;
     
     const finalBalance = initialBalance - amortization;
     
