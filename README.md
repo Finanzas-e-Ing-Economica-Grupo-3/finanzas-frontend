@@ -11,7 +11,7 @@ BondFlow es una aplicación web moderna para la gestión y análisis de bonos co
 - **Cálculos avanzados**: Duración, duración modificada, convexidad, TCEA, TREA
 - **Visualización de flujos de caja**: Tablas detalladas de flujos y gráficos
 - **Tipos de bonos soportados**: 
- - Amortización Alemana, Francesa y Americana
+ - Amortización Americana
  - Periodos de gracia parcial y total
  - Diferentes frecuencias de pago
 - **Múltiples monedas**: USD, PEN, EUR
