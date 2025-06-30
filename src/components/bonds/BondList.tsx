@@ -10,7 +10,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { FileText, Plus, Download } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { FileText, Plus, Download, Trash2, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -35,6 +46,7 @@ const BondList: React.FC = () => {
   const { user } = useAuth();
   const [bonds, setBonds] = useState<BondListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBonds = async () => {
@@ -127,6 +139,51 @@ const BondList: React.FC = () => {
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('Error al generar el PDF');
+    }
+  };
+
+  const deleteBond = async (bondId: string, bondName: string) => {
+    try {
+      setDeletingId(bondId);
+      
+      // Delete cash flows first (foreign key constraint)
+      const { error: cashFlowError } = await supabase
+        .from('cash_flows')
+        .delete()
+        .eq('bond_id', bondId);
+
+      if (cashFlowError && cashFlowError.code !== 'PGRST116') { // PGRST116 = no rows found, which is fine
+        throw cashFlowError;
+      }
+
+      // Delete bond analysis
+      const { error: analysisError } = await supabase
+        .from('bond_analysis')
+        .delete()
+        .eq('bond_id', bondId);
+
+      if (analysisError && analysisError.code !== 'PGRST116') {
+        throw analysisError;
+      }
+
+      // Delete the bond
+      const { error: bondError } = await supabase
+        .from('bonds')
+        .delete()
+        .eq('id', bondId)
+        .eq('user_id', user!.id);
+
+      if (bondError) throw bondError;
+
+      // Update local state
+      setBonds(prevBonds => prevBonds.filter(bond => bond.id !== bondId));
+      
+      toast.success(`Bono "${bondName}" eliminado exitosamente`);
+    } catch (error) {
+      console.error('Error deleting bond:', error);
+      toast.error('Error al eliminar el bono');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -271,6 +328,15 @@ const BondList: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => navigate(`/bonds/${bond.id}/edit`)}
+                            className="hover:bg-blue-600/10 h-8 w-8 p-0"
+                            title="Editar bono"
+                          >
+                            <Edit className="h-4 w-4 text-blue-600" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
                               generatePDFFromList(bond);
@@ -280,6 +346,45 @@ const BondList: React.FC = () => {
                           >
                             <Download className="h-4 w-4 text-green-600" />
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="hover:bg-red-600/10 h-8 w-8 p-0"
+                                title="Eliminar bono"
+                                disabled={deletingId === bond.id}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción no se puede deshacer. Se eliminará permanentemente el bono
+                                  <span className="font-semibold"> "{bond.name}"</span> y todos sus datos asociados
+                                  (flujos de caja, análisis, etc.).
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteBond(bond.id, bond.name)}
+                                  className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                                >
+                                  {deletingId === bond.id ? (
+                                    <div className="flex items-center">
+                                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                                      Eliminando...
+                                    </div>
+                                  ) : (
+                                    "Eliminar"
+                                  )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
