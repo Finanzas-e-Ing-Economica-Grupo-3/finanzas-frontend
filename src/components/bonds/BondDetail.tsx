@@ -62,7 +62,7 @@ const BondDetailComponent: React.FC = () => {
           interestRate: data.interest_rate,
           term: data.term,
           frequency: data.frequency,
-          amortizationType: data.amortization_type as "French" | "German" | "American",
+          amortizationType: data.amortization_type as "American",
           graceType: data.grace_type as "None" | "Partial" | "Total",
           gracePeriods: data.grace_periods,
           emissionDate: data.emission_date,
@@ -270,11 +270,7 @@ const BondDetailComponent: React.FC = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Tipo de Amortización</p>
                 <p className="font-medium">
-                  {bond.amortizationType === "French"
-                    ? "Francés"
-                    : bond.amortizationType === "German"
-                    ? "Alemán"
-                    : "Americano"}
+                  {bond.amortizationType === "American"}
                 </p>
               </div>
               <div>

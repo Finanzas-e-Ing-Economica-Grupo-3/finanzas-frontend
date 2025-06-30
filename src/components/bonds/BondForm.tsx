@@ -27,7 +27,7 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
   const [interestRate, setInterestRate] = useState(initialData?.interestRate?.toString() || "");
   const [term, setTerm] = useState(initialData?.term?.toString() || "");
   const [frequency, setFrequency] = useState(initialData?.frequency?.toString() || "2"); // Default semiannual
-  const [amortizationType, setAmortizationType] = useState<AmortizationType>(initialData?.amortizationType || "French");
+  const [amortizationType, setAmortizationType] = useState<AmortizationType>(initialData?.amortizationType || "American");
   const [graceType, setGraceType] = useState<GraceType>(initialData?.graceType || "None");
   const [gracePeriods, setGracePeriods] = useState(initialData?.gracePeriods?.toString() || "0");
   const [emissionDate, setEmissionDate] = useState(initialData?.emissionDate || new Date().toISOString().split('T')[0]);
@@ -256,16 +256,14 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
                 <div className="space-y-4">
                   <Label htmlFor="amortization-type" className="text-sm font-medium">Tipo de Amortización</Label>
                   <Select 
-                    value={amortizationType} 
+                    value={amortizationType}
                     onValueChange={(value) => setAmortizationType(value as AmortizationType)}
                   >
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Seleccionar tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="American">Americano (Al vencimiento)</SelectItem>
-                      <SelectItem value="German">Alemán (Cuota decreciente)</SelectItem>
-                      <SelectItem value="French">Francés (Cuota constante)</SelectItem>
+                      <SelectItem value="American">Americano</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

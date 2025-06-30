@@ -101,13 +101,6 @@ const BondList: React.FC = () => {
             Gestiona y visualiza todos tus bonos registrados
           </p>
         </div>
-        <Button
-          className="bg-bond-green text-black hover:bg-bond-green/80 h-11 px-6 shrink-0"
-          onClick={() => navigate("/bonds/new")}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Bono
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -200,11 +193,7 @@ const BondList: React.FC = () => {
                       <TableCell className="py-4">{bond.term} años</TableCell>
                       <TableCell className="py-4">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-muted border">
-                          {bond.amortization_type === "French"
-                            ? "Francés"
-                            : bond.amortization_type === "German"
-                            ? "Alemán"
-                            : "Americano"}
+                          Americano
                         </span>
                       </TableCell>
                       <TableCell className="py-4">{new Date(bond.emission_date).toLocaleDateString('es-PE')}</TableCell>

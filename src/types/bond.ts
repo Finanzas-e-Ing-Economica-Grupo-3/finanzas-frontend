@@ -1,5 +1,5 @@
 
-export type AmortizationType = "American" | "German" | "French";
+export type AmortizationType = "American";
 
 export type InterestRateType = "Effective" | "Nominal";
 
