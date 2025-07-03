@@ -117,12 +117,15 @@ export function generateBondReportPDF(
   doc.text('Flujo de Caja Detallado', 20, 30);
   
   // Tabla resumen antes del detalle
+  // Exclude period 0 from interest, amortization, and payment totals
+  const operationalPeriods = cashFlow.slice(1); // Exclude period 0
   const summaryTableData = [
-    ['Total de Períodos', cashFlow.length.toString()],
-    ['Total Intereses', formatCurrency(cashFlow.reduce((sum, flow) => sum + flow.interest, 0), bond.settings.currency)],
-    ['Total Amortización', formatCurrency(cashFlow.reduce((sum, flow) => sum + flow.amortization, 0), bond.settings.currency)],
-    ['Total Pagos', formatCurrency(cashFlow.reduce((sum, flow) => sum + flow.payment, 0), bond.settings.currency)],
-    ['Pago Promedio', formatCurrency(cashFlow.reduce((sum, flow) => sum + flow.payment, 0) / cashFlow.length, bond.settings.currency)],
+    ['Total de Períodos', `${cashFlow.length} (incluyendo emisión)`],
+    ['Períodos Operacionales', operationalPeriods.length.toString()],
+    ['Total Intereses', formatCurrency(operationalPeriods.reduce((sum, flow) => sum + flow.interest, 0), bond.settings.currency)],
+    ['Total Amortización', formatCurrency(operationalPeriods.reduce((sum, flow) => sum + flow.amortization, 0), bond.settings.currency)],
+    ['Total Pagos (sin emisión)', formatCurrency(operationalPeriods.reduce((sum, flow) => sum + flow.payment, 0), bond.settings.currency)],
+    ['Pago Promedio', formatCurrency(operationalPeriods.reduce((sum, flow) => sum + flow.payment, 0) / operationalPeriods.length, bond.settings.currency)],
     ['Primer Pago', formatDate(cashFlow[0]?.date || '')],
     ['Último Pago', formatDate(cashFlow[cashFlow.length - 1]?.date || '')]
   ];
@@ -154,7 +157,7 @@ export function generateBondReportPDF(
   
   // Preparar datos de la tabla principal
   const tableData = cashFlow.map((flow, index) => [
-    (index + 1).toString(),
+    flow.period.toString(), // Use flow.period instead of index + 1
     formatDate(flow.date),
     formatCurrency(flow.initialBalance, bond.settings.currency),
     formatCurrency(flow.interest, bond.settings.currency),
@@ -198,10 +201,11 @@ export function generateBondReportPDF(
   doc.addPage();
   addHeader(doc);
   
-  // Calcular totales para el resumen
-  const totalInterest = cashFlow.reduce((sum, flow) => sum + flow.interest, 0);
-  const totalPayments = cashFlow.reduce((sum, flow) => sum + flow.payment, 0);
-  const totalAmortization = cashFlow.reduce((sum, flow) => sum + flow.amortization, 0);
+  // Calcular totales para el resumen (excluding period 0)
+  const operationalFlows = cashFlow.slice(1); // Exclude period 0
+  const totalInterest = operationalFlows.reduce((sum, flow) => sum + flow.interest, 0);
+  const totalPayments = operationalFlows.reduce((sum, flow) => sum + flow.payment, 0);
+  const totalAmortization = operationalFlows.reduce((sum, flow) => sum + flow.amortization, 0);
   
   // Título principal de la página
   doc.setFontSize(16);
@@ -229,7 +233,7 @@ export function generateBondReportPDF(
   
   const investmentData = [
     `• Capital inicial: ${formatCurrency(bond.nominalValue, bond.settings.currency)}`,
-    `• Plazo total: ${bond.term} años (${cashFlow.length} períodos)`,
+    `• Plazo total: ${bond.term} años (${cashFlow.length - 1} períodos operacionales + emisión)`,
     `• Tasa de interés: ${bond.interestRate}% ${bond.settings.interestRateType === 'Effective' ? 'Efectiva' : 'Nominal'}`,
     `• Frecuencia de pago: ${getFrequencyText(bond.frequency)}`,
     `• Períodos de gracia: ${bond.gracePeriods} (${getGraceText(bond.graceType)})`

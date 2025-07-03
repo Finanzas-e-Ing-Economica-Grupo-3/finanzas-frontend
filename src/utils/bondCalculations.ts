@@ -35,6 +35,19 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
   // Convert annual interest rate to period rate based on frequency
   const periodRate = convertInterestRate(interestRate, bond.settings.interestRateType, frequency);
   
+  // Period 0: Initial cash flow (emission of the bond)
+  // From the issuer's perspective, this is when they receive the nominal value
+  const emissionDate = new Date(bond.emissionDate);
+  cashFlow.push({
+    period: 0,
+    date: emissionDate.toISOString().split('T')[0],
+    initialBalance: 0,
+    interest: 0,
+    amortization: 0,
+    payment: -nominalValue, // Negative because issuer receives money
+    finalBalance: nominalValue,
+  });
+  
   let initialBalance = nominalValue;
   let periodDate = new Date(bond.emissionDate);
   const periodInterval = 12 / frequency; // Months between payments
@@ -112,8 +125,9 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
   let weightedTimeSquared = 0;
   
   // Calculate duration and present value
-  for (let i = 0; i < cashFlow.length; i++) {
-    const period = i + 1;
+  // Skip period 0 as it's the initial outflow, start from period 1
+  for (let i = 1; i < cashFlow.length; i++) {
+    const period = i; // Period number (1, 2, 3, ...)
     const payment = cashFlow[i].payment;
     const discountFactor = Math.pow(1 + marketPeriodRate, -period);
     
@@ -156,9 +170,9 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
 
 // Calculate TCEA (Tasa de Costo Efectiva Anual) - Issuer perspective
 function calculateTCEA(bond: Bond, cashFlow: CashFlow[]): number {
-  // For the issuer: they receive the nominal value at t=0, pay out the cash flows
-  // TCEA satisfies: -NominalValue + Σ(Payment_t / (1+TCEA)^t) = 0
-  const flows = [-bond.nominalValue, ...cashFlow.map(cf => cf.payment)];
+  // For the issuer: the cash flow already includes period 0 with -nominalValue
+  // and subsequent periods with payments
+  const flows = cashFlow.map(cf => cf.payment);
   const periodicRate = calculateIRR(flows);
   
   // Convert periodic rate to annual effective rate
@@ -168,9 +182,8 @@ function calculateTCEA(bond: Bond, cashFlow: CashFlow[]): number {
 
 // Calculate TREA (Tasa de Rendimiento Efectiva Anual) - Investor perspective  
 function calculateTREA(marketPrice: number, cashFlow: CashFlow[], frequency: number): number {
-  // For the investor: they pay the market price at t=0, receive the cash flows
-  // TREA satisfies: -MarketPrice + Σ(Payment_t / (1+TREA)^t) = 0
-  const flows = [-marketPrice, ...cashFlow.map(cf => cf.payment)];
+  // For the investor: they pay the market price at t=0, receive the cash flows from period 1 onwards
+  const flows = [-marketPrice, ...cashFlow.slice(1).map(cf => cf.payment)];
   const periodicRate = calculateIRR(flows);
   
   // Convert periodic rate to annual effective rate
