@@ -206,9 +206,6 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground mb-6">
                   Tus datos están encriptados y almacenados de forma segura
                 </p>
-                <Button variant="outline" size="sm" disabled className="h-10">
-                  Descargar Datos (Próximamente)
-                </Button>
               </div>
             </div>
           </CardContent>

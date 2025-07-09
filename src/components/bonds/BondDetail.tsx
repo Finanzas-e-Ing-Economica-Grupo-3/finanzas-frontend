@@ -439,11 +439,6 @@ const BondDetailComponent: React.FC = () => {
             </TabsContent>
           </Tabs>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button variant="outline" onClick={() => window.print()}>
-            Descargar Reporte
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );
