@@ -94,8 +94,8 @@ export function generateBondReportPDF(
     ['Duración (Macaulay):', `${analysis.duration.toFixed(2)} años`],
     ['Duración Modificada:', `${analysis.modifiedDuration.toFixed(2)} años`],
     ['Convexidad:', analysis.convexity.toFixed(2)],
-    ['TCEA (Costo Efectivo):', `${(analysis.effectiveCostRate * 100).toFixed(2)}%`],
-    ['TREA (Rendimiento Efectivo):', `${(analysis.effectiveYieldRate * 100).toFixed(2)}%`]
+    ['TCEA (Costo Efectivo):', `${(analysis.effectiveCostRate).toFixed(2)}%`],
+    ['TREA (Rendimiento Efectivo):', `${(analysis.effectiveYieldRate).toFixed(2)}%`]
   ];
   
   analysisInfo.forEach(([label, value]) => {
