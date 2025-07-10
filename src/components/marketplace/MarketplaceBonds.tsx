@@ -56,18 +56,15 @@ const MarketplaceBonds: React.FC = () => {
   const [selectedRating, setSelectedRating] = useState("all");
   const [sortBy, setSortBy] = useState("interest_rate_desc");
 
-  // Modal states
   const [selectedBond, setSelectedBond] = useState<MarketplaceBond | null>(null);
   const [investmentAmount, setInvestmentAmount] = useState("");
   const [investmentModalOpen, setInvestmentModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [investing, setInvesting] = useState(false);
 
-  // Para flujo de caja y análisis en el modal de detalles
   const [cashFlow, setCashFlow] = useState<CashFlow[]>([]);
   const [bondAnalysis, setBondAnalysis] = useState<BondAnalysis | null>(null);
 
-  // Validar rol de usuario inversionista
   useEffect(() => {
     const role = localStorage.getItem("currentUserRole");
     if (role !== "investor") {
@@ -84,7 +81,6 @@ const MarketplaceBonds: React.FC = () => {
     filterAndSortBonds();
   }, [bonds, searchTerm, selectedCurrency, selectedTerm, selectedRating, sortBy]);
 
-  // Calcular flujo de caja y análisis cuando se abre el modal de detalles
   useEffect(() => {
     if (selectedBond && detailModalOpen) {
       try {
@@ -141,7 +137,6 @@ const MarketplaceBonds: React.FC = () => {
         return;
       }
 
-      // Obtener perfiles de emisores
       const uniqueUserIds = [...new Set(bondsData.map((bond: any) => bond.user_id))];
       let profilesMap: Record<string, string> = {};
       
@@ -159,7 +154,6 @@ const MarketplaceBonds: React.FC = () => {
         }
       }
 
-      // Transformar bonos
       const marketplaceBonds: MarketplaceBond[] = bondsData.map((bond: any) =>
         transformToMarketplaceBond(
           bond,
@@ -192,7 +186,6 @@ const MarketplaceBonds: React.FC = () => {
       return matchesSearch && matchesCurrency && matchesTerm && matchesRating;
     });
 
-    // Ordenamiento
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "interest_rate_desc":
@@ -358,7 +351,6 @@ const MarketplaceBonds: React.FC = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="flex justify-between items-start">
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">Mercado de Bonos</h1>
@@ -367,7 +359,6 @@ const MarketplaceBonds: React.FC = () => {
             </p>
           </div>
 
-          {/* View Mode Toggle */}
           <div className="flex items-center gap-2 bg-muted p-1 rounded-lg">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -388,7 +379,6 @@ const MarketplaceBonds: React.FC = () => {
           </div>
         </div>
 
-        {/* Mensaje cuando no hay datos */}
         {!loading && bonds.length === 0 && (
           <Card className="border-orange-200 bg-orange-50">
             <CardContent className="py-16 text-center">
@@ -414,10 +404,8 @@ const MarketplaceBonds: React.FC = () => {
           </Card>
         )}
 
-        {/* Content normal solo si hay datos */}
         {bonds.length > 0 && (
           <>
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -481,7 +469,6 @@ const MarketplaceBonds: React.FC = () => {
               </Card>
             </div>
 
-            {/* Filters */}
             <Card>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -542,7 +529,6 @@ const MarketplaceBonds: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Content Views */}
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredBonds.map((bond) => (
@@ -578,7 +564,6 @@ const MarketplaceBonds: React.FC = () => {
           </>
         )}
 
-        {/* Investment Modal */}
         <Dialog open={investmentModalOpen} onOpenChange={setInvestmentModalOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -646,7 +631,6 @@ const MarketplaceBonds: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Detail Modal usando el nuevo componente */}
         <BondDetailModal
           open={detailModalOpen}
           onOpenChange={setDetailModalOpen}

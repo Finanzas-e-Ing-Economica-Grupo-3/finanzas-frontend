@@ -151,7 +151,6 @@ const Notifications = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">Notificaciones</h1>
@@ -167,7 +166,6 @@ const Notifications = () => {
           )}
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="p-6">
@@ -208,7 +206,6 @@ const Notifications = () => {
           </Card>
         </div>
 
-        {/* Notifications */}
         <Tabs defaultValue="unread" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="unread" className="relative">

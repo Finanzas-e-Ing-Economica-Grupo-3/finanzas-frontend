@@ -17,7 +17,7 @@ import { AmortizationType, Bond, BondAnalysis, CashFlow, GraceType, InterestRate
  * - TCEA = TREA = Tasa de interés del bono
  */
 
-// Function to calculate cash flow
+// Función para calcular el flujo de caja
 export function calculateCashFlow(bond: Bond): CashFlow[] {
   const {
     nominalValue,
@@ -32,11 +32,11 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
   const totalPeriods = term * frequency;
   const cashFlow: CashFlow[] = [];
   
-  // Convert annual interest rate to period rate based on frequency
+  // Convertir tasa de interés anual a tasa periódica basada en la frecuencia
   const periodRate = convertInterestRate(interestRate, bond.settings.interestRateType, frequency);
   
-  // Period 0: Initial cash flow (emission of the bond)
-  // From the issuer's perspective, this is when they receive the nominal value
+  // Período 0: Flujo de caja inicial (emisión del bono)
+  // Desde la perspectiva del emisor, aquí es cuando reciben el valor nominal
   const emissionDate = new Date(bond.emissionDate);
   cashFlow.push({
     period: 0,
@@ -44,16 +44,16 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
     initialBalance: 0,
     interest: 0,
     amortization: 0,
-    payment: -nominalValue, // Negative because issuer receives money
+    payment: -nominalValue, // Negativo porque el emisor recibe dinero
     finalBalance: nominalValue,
   });
   
   let initialBalance = nominalValue;
   let periodDate = new Date(bond.emissionDate);
-  const periodInterval = 12 / frequency; // Months between payments
+  const periodInterval = 12 / frequency; // Meses entre pagos
   
   for (let period = 1; period <= totalPeriods; period++) {
-    // Calculate date for this period
+    // Calcular fecha para este período
     periodDate = new Date(periodDate);
     periodDate.setMonth(periodDate.getMonth() + periodInterval);
     
@@ -62,18 +62,18 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
     let amortization = 0;
     let payment = 0;
     
-    // Calculate amortization based on type and grace period
+    // Calcular amortización basada en el tipo y período de gracia
     if (!isGracePeriod) {
-      // American method: No amortization until last period, only interest payments
+      // Método americano: Sin amortización hasta el último período, solo pagos de interés
       amortization = period === totalPeriods ? initialBalance : 0;
     } else if (graceType === "Partial") {
-      // Partial grace: interest payments but no amortization
+      // Gracia parcial: pagos de interés pero sin amortización
       amortization = 0;
     } else if (graceType === "Total") {
-      // Total grace: no payment, interest is capitalized
+      // Gracia total: sin pago, el interés se capitaliza
       amortization = 0;
       initialBalance += interest;
-      interest = 0; // Interest is not paid but added to the principal
+      interest = 0; // El interés no se paga sino que se añade al principal
     }
     
     payment = interest + amortization;
@@ -96,38 +96,38 @@ export function calculateCashFlow(bond: Bond): CashFlow[] {
   return cashFlow;
 }
 
-// Convert annual rate to period rate based on frequency
+// Convertir tasa anual a tasa periódica basada en la frecuencia
 function convertInterestRate(
   rate: number,
   rateType: InterestRateType,
   frequency: number
 ): number {
-  // Convert percentage to decimal
+  // Convertir porcentaje a decimal
   const decimalRate = rate / 100;
   
   if (rateType === "Effective") {
-    // Convert effective annual rate to effective period rate
+    // Convertir tasa anual efectiva a tasa periódica efectiva
     return Math.pow(1 + decimalRate, 1 / frequency) - 1;
   } else {
-    // For nominal, we simply divide by frequency (simplified)
+    // Para nominal, simplemente dividimos por la frecuencia (simplificado)
     return decimalRate / frequency;
   }
 }
 
-// Calculate bond analysis metrics
+// Calcular métricas de análisis de bonos
 export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number): BondAnalysis {
   const periodRate = convertInterestRate(bond.interestRate, bond.settings.interestRateType, bond.frequency);
   const marketPeriodRate = convertInterestRate(marketRate, bond.settings.interestRateType, bond.frequency);
   
-  // Calculate present value of cash flows (market price)
+  // Calcular valor presente de los flujos de caja (precio de mercado)
   let presentValue = 0;
   let weightedTime = 0;
   let weightedTimeSquared = 0;
   
-  // Calculate duration and present value
-  // Skip period 0 as it's the initial outflow, start from period 1
+  // Calcular duración y valor presente
+  // Omitir período 0 ya que es el flujo de salida inicial, comenzar desde período 1
   for (let i = 1; i < cashFlow.length; i++) {
-    const period = i; // Period number (1, 2, 3, ...)
+    const period = i; // Número de período (1, 2, 3, ...)
     const payment = cashFlow[i].payment;
     const discountFactor = Math.pow(1 + marketPeriodRate, -period);
     
@@ -137,25 +137,25 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
     weightedTimeSquared += period * period * presentValueOfPayment;
   }
   
-  // Macaulay Duration (in periods)
+  // Duración de Macaulay (en períodos)
   const macaulayDuration = weightedTime / presentValue;
   
-  // Modified Duration
+  // Duración Modificada
   const modifiedDuration = macaulayDuration / (1 + marketPeriodRate);
   
-  // Convexity
+  // Convexidad
   const convexity = weightedTimeSquared / (presentValue * Math.pow(1 + marketPeriodRate, 2));
   
-  // Convert duration from periods to years
+  // Convertir duración de períodos a años
   const durationInYears = macaulayDuration / bond.frequency;
   const modifiedDurationInYears = modifiedDuration / bond.frequency;
   
-  // Calculate TCEA (issuer perspective) - Effective Annual Cost Rate
-  // From issuer's perspective: they receive nominal value, pay out the cash flows
+  // Calcular TCEA (perspectiva del emisor) - Tasa de Costo Efectiva Anual
+  // Desde la perspectiva del emisor: reciben el valor nominal, pagan los flujos de caja
   const tcea = calculateTCEA(bond, cashFlow);
   
-  // Calculate TREA (investor perspective) - Effective Annual Yield Rate  
-  // From investor's perspective: they pay market price, receive the cash flows
+  // Calcular TREA (perspectiva del inversor) - Tasa de Rendimiento Efectiva Anual
+  // Desde la perspectiva del inversor: pagan el precio de mercado, reciben los flujos de caja
   const trea = calculateTREA(presentValue, cashFlow, bond.frequency);
   
   return {
@@ -168,63 +168,63 @@ export function analyzeBond(bond: Bond, cashFlow: CashFlow[], marketRate: number
   };
 }
 
-// Calculate TCEA (Tasa de Costo Efectiva Anual) - Issuer perspective
+// Calcular TCEA (Tasa de Costo Efectiva Anual) - Perspectiva del emisor
 function calculateTCEA(bond: Bond, cashFlow: CashFlow[]): number {
-  // For the issuer: the cash flow already includes period 0 with -nominalValue
-  // and subsequent periods with payments
+  // Para el emisor: el flujo de caja ya incluye el período 0 con -valorNominal
+  // y períodos subsecuentes con pagos
   const flows = cashFlow.map(cf => cf.payment);
   const periodicRate = calculateIRR(flows);
   
-  // Convert periodic rate to annual effective rate
+  // Convertir tasa periódica a tasa anual efectiva
   const annualRate = (Math.pow(1 + periodicRate, bond.frequency) - 1) * 100;
   return annualRate;
 }
 
-// Calculate TREA (Tasa de Rendimiento Efectiva Anual) - Investor perspective  
+// Calcular TREA (Tasa de Rendimiento Efectiva Anual) - Perspectiva del inversor
 function calculateTREA(marketPrice: number, cashFlow: CashFlow[], frequency: number): number {
-  // For the investor: they pay the market price at t=0, receive the cash flows from period 1 onwards
+  // Para el inversor: pagan el precio de mercado en t=0, reciben los flujos de caja desde el período 1 en adelante
   const flows = [-marketPrice, ...cashFlow.slice(1).map(cf => cf.payment)];
   const periodicRate = calculateIRR(flows);
   
-  // Convert periodic rate to annual effective rate
+  // Convertir tasa periódica a tasa anual efectiva
   const annualRate = (Math.pow(1 + periodicRate, frequency) - 1) * 100;
   return annualRate;
 }
 
-// Calculate Internal Rate of Return (IRR) using Newton-Raphson method
+// Calcular Tasa Interna de Retorno (TIR) usando el método de Newton-Raphson
 function calculateIRR(cashFlows: number[]): number {
   const MAX_ITERATIONS = 1000;
   const PRECISION = 0.000001;
   
-  // Better initial guess based on simple return
-  let guess = 0.05; // Start with 5%
+  // Mejor estimación inicial basada en retorno simple
+  let guess = 0.05; // Comenzar con 5%
   
-  // Handle edge cases
+  // Manejar casos extremos
   if (cashFlows.length < 2) return 0;
   
   for (let i = 0; i < MAX_ITERATIONS; i++) {
     const npv = calculateNPV(cashFlows, guess);
     const derivativeNpv = calculateDerivativeNPV(cashFlows, guess);
     
-    // Check for convergence
+    // Verificar convergencia
     if (Math.abs(npv) < PRECISION) {
       break;
     }
     
-    // Avoid division by zero
+    // Evitar división por cero
     if (Math.abs(derivativeNpv) < PRECISION) {
       break;
     }
     
     const newGuess = guess - npv / derivativeNpv;
     
-    // Check for convergence
+    // Verificar convergencia
     if (Math.abs(newGuess - guess) < PRECISION) {
       guess = newGuess;
       break;
     }
     
-    // Prevent negative rates from going too negative (practical limit)
+    // Prevenir que las tasas negativas se vuelvan demasiado negativas (límite práctico)
     guess = Math.max(newGuess, -0.99);
   }
   
@@ -239,7 +239,7 @@ function calculateNPV(cashFlows: number[], rate: number): number {
 
 function calculateDerivativeNPV(cashFlows: number[], rate: number): number {
   return cashFlows.reduce((derivative, flow, index) => {
-    if (index === 0) return derivative; // Skip t=0 in derivative calculation
+    if (index === 0) return derivative; // Omitir t=0 en el cálculo de la derivada
     return derivative - (index * flow) / Math.pow(1 + rate, index + 1);
   }, 0);
 }

@@ -6,9 +6,7 @@ interface ThemeProviderProps {
 }
 
 const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Apply dark mode by default when the component mounts
   useEffect(() => {
-    // Apply dark class to html element
     document.documentElement.classList.add('dark');
   }, []);
 

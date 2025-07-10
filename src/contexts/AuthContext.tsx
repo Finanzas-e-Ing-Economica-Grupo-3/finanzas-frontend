@@ -19,11 +19,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get session and set up listener
     const setupAuth = async () => {
       setLoading(true);
 
-      // Set up auth state listener first
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, currentSession) => {
           setSession(currentSession);
@@ -33,7 +31,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userId) {
             localStorage.setItem('currentUserId', userId);
 
-            // Obtener el rol de forma asíncrona, sin bloquear el flujo
             supabase
               .from('profiles')
               .select('role')
@@ -55,7 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       );
 
-      // Then check for existing session
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -63,7 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userId) {
         localStorage.setItem('currentUserId', userId);
 
-        // Obtener el rol de forma asíncrona
         supabase
           .from('profiles')
           .select('role')
@@ -95,7 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
-      // Clean up subscription when component unmounts
       if (typeof cleanup === 'function') {
         cleanup();
       }

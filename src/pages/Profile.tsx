@@ -86,7 +86,6 @@ const Profile = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header Section */}
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Mi Perfil</h1>
           <p className="text-muted-foreground">
@@ -94,9 +93,7 @@ const Profile = () => {
           </p>
         </div>
 
-        {/* Profile Cards */}
         <div className="grid gap-8 lg:grid-cols-2">
-          {/* Personal Information */}
           <Card className="shadow-sm">
             <CardHeader className="pb-6">
               <CardTitle className="text-xl flex items-center gap-3">
@@ -142,7 +139,6 @@ const Profile = () => {
             </CardFooter>
           </Card>
 
-          {/* Account Information */}
           <Card className="shadow-sm">
             <CardHeader className="pb-6">
               <CardTitle className="text-xl flex items-center gap-3">

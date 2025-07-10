@@ -60,7 +60,6 @@ const InvestorPortfolio: React.FC = () => {
     try {
       setLoading(true);
 
-      // 1. Obtener inversiones con información básica del bono (sin join a profiles)
       const { data: investmentsData, error: investmentsError } = await supabase
         .from('investments')
         .select(`*, bonds:bond_id(name, interest_rate, term, frequency, currency, emission_date, amortization_type, user_id, nominal_value)`) // sin join a profiles
@@ -70,7 +69,6 @@ const InvestorPortfolio: React.FC = () => {
 
       if (investmentsError) throw investmentsError;
 
-      // 2. Obtener todos los userIds únicos de los bonos
       const userIds = Array.from(new Set(investmentsData.map(inv => inv.bonds?.user_id).filter(Boolean)));
       let userIdToName: Record<string, string> = {};
       if (userIds.length > 0) {
@@ -85,7 +83,6 @@ const InvestorPortfolio: React.FC = () => {
         }, {} as Record<string, string>);
       }
 
-      // 3. Procesar datos de inversiones, agregando issuer_name correcto
       const processedInvestments: Investment[] = investmentsData.map(inv => {
         const bond = inv.bonds ? {
           ...inv.bonds,
@@ -101,7 +98,6 @@ const InvestorPortfolio: React.FC = () => {
 
       setInvestments(processedInvestments);
 
-      // Calcular estadísticas del portfolio
       const totalInvested = processedInvestments.reduce((sum, inv) => sum + inv.amount, 0);
       const totalCurrentValue = processedInvestments.reduce((sum, inv) => sum + (inv.current_value || inv.amount), 0);
       const totalReturn = totalCurrentValue - totalInvested;
@@ -157,7 +153,6 @@ const InvestorPortfolio: React.FC = () => {
     return 'Vencimiento Próximo';
   };
 
-  // Agrupar inversiones por moneda para el resumen
   const investmentsByCurrency = investments.reduce((acc, inv) => {
     const currency = inv.bond.currency;
     if (!acc[currency]) {
@@ -182,7 +177,6 @@ const InvestorPortfolio: React.FC = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Mi Portfolio</h1>
           <p className="text-muted-foreground">
@@ -190,7 +184,6 @@ const InvestorPortfolio: React.FC = () => {
           </p>
         </div>
 
-        {/* Portfolio Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6">
@@ -251,7 +244,6 @@ const InvestorPortfolio: React.FC = () => {
           </Card>
         </div>
 
-        {/* Portfolio Content */}
         <Tabs defaultValue="investments" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="investments">Inversiones</TabsTrigger>

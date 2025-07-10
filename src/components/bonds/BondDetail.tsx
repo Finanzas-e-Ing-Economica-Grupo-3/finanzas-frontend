@@ -55,7 +55,6 @@ const BondDetailComponent: React.FC = () => {
           return;
         }
         
-        // Transform from database format to app format
         const bondData: Bond = {
           id: data.id,
           name: data.name,
@@ -79,16 +78,13 @@ const BondDetailComponent: React.FC = () => {
         
         setBond(bondData);
         
-        // Calculate cash flow and analysis
         const flows = calculateCashFlow(bondData);
         setCashFlow(flows);
         
         const analysis = analyzeBond(bondData, flows, parseFloat(marketRate));
         setBondAnalysis(analysis);
         
-        // Save cash flows and analysis to database
         try {
-          // First check if cash flows already exist
           const { count, error: countError } = await supabase
             .from('cash_flows')
             .select('*', { count: 'exact', head: true })
@@ -96,9 +92,7 @@ const BondDetailComponent: React.FC = () => {
             
           if (countError) throw countError;
           
-          // If no cash flows exist, insert them
           if (count === 0) {
-            // Format cash flows for database
             const cashFlowsData = flows.map(flow => ({
               bond_id: id,
               period: flow.period,
@@ -117,7 +111,6 @@ const BondDetailComponent: React.FC = () => {
             if (insertError) throw insertError;
           }
           
-          // Check if analysis already exists
           const { data: existingAnalysis, error: analysisError } = await supabase
             .from('bond_analysis')
             .select('id')
@@ -126,7 +119,6 @@ const BondDetailComponent: React.FC = () => {
             
           if (analysisError) throw analysisError;
           
-          // Format analysis for database
           const analysisData = {
             bond_id: id,
             convexity: analysis.convexity,
@@ -138,7 +130,6 @@ const BondDetailComponent: React.FC = () => {
           };
           
           if (existingAnalysis) {
-            // Update existing analysis
             const { error: updateError } = await supabase
               .from('bond_analysis')
               .update(analysisData)
@@ -146,7 +137,6 @@ const BondDetailComponent: React.FC = () => {
               
             if (updateError) throw updateError;
           } else {
-            // Insert new analysis
             const { error: insertError } = await supabase
               .from('bond_analysis')
               .insert(analysisData);
@@ -154,7 +144,6 @@ const BondDetailComponent: React.FC = () => {
             if (insertError) throw insertError;
           }
         } catch (saveError) {
-          // Log error but don't stop the UI from showing
           console.error("Error saving cash flows or analysis:", saveError);
         }
         

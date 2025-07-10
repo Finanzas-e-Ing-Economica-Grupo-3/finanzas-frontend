@@ -30,7 +30,6 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Primero registrar el usuario
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -44,7 +43,6 @@ const RegisterForm: React.FC = () => {
       
       if (error) throw error;
       
-      // Si el registro fue exitoso y tenemos el usuario, crear el perfil
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -56,7 +54,6 @@ const RegisterForm: React.FC = () => {
         
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Intentar eliminar el usuario si falla la creación del perfil
           await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error('Error al crear el perfil del usuario');
         }

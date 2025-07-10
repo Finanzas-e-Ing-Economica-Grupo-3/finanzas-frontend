@@ -18,7 +18,6 @@ const SettingsForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSettingsLoading, setIsSettingsLoading] = useState(true);
 
-  // Load user settings
   useEffect(() => {
     const loadUserSettings = async () => {
       if (!user) return;
@@ -64,7 +63,6 @@ const SettingsForm: React.FC = () => {
         default_capitalization: defaultInterestType === "Nominal" ? defaultCapitalization : null
       };
       
-      // Check if settings already exist
       const { data, error: fetchError } = await supabase
         .from('user_settings')
         .select('id')
@@ -76,13 +74,11 @@ const SettingsForm: React.FC = () => {
       let response;
       
       if (data) {
-        // Update existing settings
         response = await supabase
           .from('user_settings')
           .update(settingsData)
           .eq('user_id', user.id);
       } else {
-        // Insert new settings
         response = await supabase
           .from('user_settings')
           .insert(settingsData);
@@ -113,7 +109,6 @@ const SettingsForm: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Configuración</h1>
         <p className="text-muted-foreground">
@@ -121,9 +116,7 @@ const SettingsForm: React.FC = () => {
         </p>
       </div>
 
-      {/* Configuration Cards */}
       <div className="grid gap-8 lg:grid-cols-2">
-        {/* Currency Configuration */}
         <Card className="shadow-sm">
           <CardHeader className="pb-6">
             <CardTitle className="text-xl flex items-center gap-3">
@@ -173,7 +166,6 @@ const SettingsForm: React.FC = () => {
           </CardContent>
         </Card>
         
-        {/* Interest Rate Configuration */}
         <Card className="shadow-sm">
           <CardHeader className="pb-6">
             <CardTitle className="text-xl flex items-center gap-3">
@@ -232,7 +224,6 @@ const SettingsForm: React.FC = () => {
         </Card>
       </div>
       
-      {/* Save Button */}
       <Card className="shadow-sm">
         <CardContent className="pt-6">
           <div className="flex justify-end">

@@ -2,16 +2,14 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Bond, CashFlow, BondAnalysis } from '@/types/bond';
 
-// Extend jsPDF type to include autoTable
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
   }
 }
 
-// Función para agregar cabecera a cada página
 function addHeader(doc: jsPDF): void {
-  doc.setFillColor(30, 64, 175); // Azul primario
+  doc.setFillColor(30, 64, 175);
   doc.rect(0, 0, 210, 15, 'F');
   
   doc.setTextColor(255, 255, 255);
@@ -31,7 +29,6 @@ export function generateBondReportPDF(
 ): void {
   const doc = new jsPDF();
   
-  // Configurar fuente
   doc.setFont('helvetica');
   
   // PÁGINA 1: Información básica del bono
@@ -44,7 +41,7 @@ export function generateBondReportPDF(
   doc.text('REPORTE COMPLETO DE BONO', 20, 30);
   
   // Línea decorativa
-  doc.setDrawColor(16, 185, 129); // Verde accent
+  doc.setDrawColor(16, 185, 129);
   doc.setLineWidth(1);
   doc.line(20, 35, 190, 35);
   
@@ -136,7 +133,7 @@ export function generateBondReportPDF(
     body: summaryTableData,
     theme: 'grid',
     headStyles: {
-      fillColor: [16, 185, 129], // Verde
+      fillColor: [16, 185, 129],
       textColor: 255,
       fontSize: 10,
       fontStyle: 'bold'
@@ -152,12 +149,10 @@ export function generateBondReportPDF(
     margin: { left: 35, right: 35 }
   });
   
-  // Espacio entre tablas
   const summaryTableFinalY = (doc as any).lastAutoTable.finalY + 10;
   
-  // Preparar datos de la tabla principal
   const tableData = cashFlow.map((flow, index) => [
-    flow.period.toString(), // Use flow.period instead of index + 1
+    flow.period.toString(),
     formatDate(flow.date),
     formatCurrency(flow.initialBalance, bond.settings.currency),
     formatCurrency(flow.interest, bond.settings.currency),
@@ -173,7 +168,7 @@ export function generateBondReportPDF(
     body: tableData,
     theme: 'striped',
     headStyles: {
-      fillColor: [30, 64, 175], // Azul primario
+      fillColor: [30, 64, 175],
       textColor: 255,
       fontSize: 10,
       fontStyle: 'bold'
@@ -183,7 +178,7 @@ export function generateBondReportPDF(
       textColor: 50
     },
     alternateRowStyles: {
-      fillColor: [248, 250, 252] // Gris muy claro
+      fillColor: [248, 250, 252]
     },
     columnStyles: {
       0: { halign: 'center', cellWidth: 20 },
@@ -201,8 +196,8 @@ export function generateBondReportPDF(
   doc.addPage();
   addHeader(doc);
   
-  // Calcular totales para el resumen (excluding period 0)
-  const operationalFlows = cashFlow.slice(1); // Exclude period 0
+  // Calcular totales para el resumen
+  const operationalFlows = cashFlow.slice(1);
   const totalInterest = operationalFlows.reduce((sum, flow) => sum + flow.interest, 0);
   const totalPayments = operationalFlows.reduce((sum, flow) => sum + flow.payment, 0);
   const totalAmortization = operationalFlows.reduce((sum, flow) => sum + flow.amortization, 0);
@@ -210,10 +205,9 @@ export function generateBondReportPDF(
   // Título principal de la página
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(16, 185, 129); // Verde accent
+  doc.setTextColor(16, 185, 129);
   doc.text('RESUMEN EJECUTIVO', 20, 30);
   
-  // Línea decorativa
   doc.setDrawColor(16, 185, 129);
   doc.setLineWidth(0.5);
   doc.line(20, 33, 190, 33);
@@ -248,7 +242,7 @@ export function generateBondReportPDF(
   currentY += 8;
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 38, 127); // Rosa/magenta
+  doc.setTextColor(220, 38, 127);
   doc.text('FLUJOS DE EFECTIVO', 20, currentY);
   
   currentY += 8;
@@ -269,7 +263,6 @@ export function generateBondReportPDF(
     currentY += 6;
   });
   
-  // Verificar si necesitamos una nueva página para análisis de rentabilidad
   if (currentY > 180) {
     doc.addPage();
     addHeader(doc);
@@ -281,7 +274,7 @@ export function generateBondReportPDF(
   // Sección 3: Análisis de Rentabilidad
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(16, 185, 129); // Verde
+  doc.setTextColor(16, 185, 129);
   doc.text('ANÁLISIS DE RENTABILIDAD', 20, currentY);
   
   currentY += 8;
@@ -304,7 +297,6 @@ export function generateBondReportPDF(
     currentY += 6;
   });
   
-  // Verificar si necesitamos una nueva página para las conclusiones
   if (currentY > 220) {
     doc.addPage();
     addHeader(doc);
@@ -315,7 +307,7 @@ export function generateBondReportPDF(
   currentY += 8;
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(168, 85, 247); // Púrpura
+  doc.setTextColor(168, 85, 247);
   doc.text('CONCLUSIONES', 20, currentY);
   
   currentY += 8;
@@ -380,7 +372,6 @@ export function generateBondReportPDF(
     doc.text(`Generado por BondFlow - ${dateStr}`, 20, 285);
     doc.text(`Página ${i} de ${pageCount}`, 170, 285);
     
-    // Disclaimer en la primera página
     if (i === 1) {
       doc.setFontSize(7);
       doc.setTextColor(100, 100, 100);
@@ -388,7 +379,6 @@ export function generateBondReportPDF(
     }
   }
   
-  // Descargar el PDF
   const fileName = `${bond.name.replace(/[^a-zA-Z0-9]/g, '_')}_reporte_completo.pdf`;
   doc.save(fileName);
 }

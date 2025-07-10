@@ -21,7 +21,6 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form state
   const [name, setName] = useState(initialData?.name || "");
   const [nominalValue, setNominalValue] = useState(initialData?.nominalValue?.toString() || "");
   const [interestRate, setInterestRate] = useState(initialData?.interestRate?.toString() || "");
@@ -32,12 +31,10 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
   const [gracePeriods, setGracePeriods] = useState(initialData?.gracePeriods?.toString() || "0");
   const [emissionDate, setEmissionDate] = useState(initialData?.emissionDate || new Date().toISOString().split('T')[0]);
   
-  // Bond settings
   const [currency, setCurrency] = useState<CurrencyType>(initialData?.settings?.currency || "USD");
   const [interestRateType, setInterestRateType] = useState<InterestRateType>(initialData?.settings?.interestRateType || "Effective");
   const [capitalization, setCapitalization] = useState(initialData?.settings?.capitalization || "");
 
-  // Load user's default settings
   useEffect(() => {
     const loadDefaultSettings = async () => {
       if (!user || isEditing) return;
@@ -74,17 +71,14 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
     setIsLoading(true);
     
     try {
-      // Validate form inputs
       if (!name || !nominalValue || !interestRate || !term || !frequency || !user) {
         throw new Error("Por favor completa todos los campos obligatorios");
       }
       
-      // Additional validation for capitalization if nominal rate type
       if (interestRateType === "Nominal" && !capitalization) {
         throw new Error("Debe especificar la capitalización para tasas nominales");
       }
       
-      // Create bond object for Supabase
       const bondData = {
         user_id: user.id,
         name,
@@ -104,14 +98,12 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
       let response;
       
       if (isEditing && initialData?.id) {
-        // Update existing bond
         response = await supabase
           .from('bonds')
           .update(bondData)
           .eq('id', initialData.id)
           .select();
       } else {
-        // Create new bond
         response = await supabase
           .from('bonds')
           .insert(bondData)
@@ -133,7 +125,6 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">
           {isEditing ? "Editar Bono" : "Crear Nuevo Bono"}
@@ -147,7 +138,6 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
         <CardContent className="pt-8">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid lg:grid-cols-2 gap-8">
-              {/* Basic Bond Information */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-10 w-10 rounded-lg bg-bond-blue/10 flex items-center justify-center">
@@ -244,7 +234,6 @@ const BondForm: React.FC<BondFormProps> = ({ initialData, isEditing = false }) =
                 </div>
               </div>
               
-              {/* Amortization and Grace Settings */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="h-10 w-10 rounded-lg bg-bond-green/10 flex items-center justify-center">

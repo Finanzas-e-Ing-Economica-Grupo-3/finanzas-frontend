@@ -37,7 +37,6 @@ const EditBond = () => {
           return;
         }
         
-        // Transform from database format to app format
         const bondData: Bond = {
           id: data.id,
           name: data.name,

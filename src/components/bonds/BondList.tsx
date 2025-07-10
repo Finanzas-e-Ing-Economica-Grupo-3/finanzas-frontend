@@ -128,11 +128,9 @@ const BondList: React.FC = () => {
         userId: bondData.user_id
       };
 
-      // Calculate cash flows and analysis
       const cashFlow = calculateCashFlow(bond);
-      const analysis = analyzeBond(bond, cashFlow, 5.0); // Default market rate
+      const analysis = analyzeBond(bond, cashFlow, 5.0);
 
-      // Generate PDF
       generateBondReportPDF(bond, cashFlow, analysis);
       
       toast.success('PDF generado exitosamente');
@@ -146,17 +144,15 @@ const BondList: React.FC = () => {
     try {
       setDeletingId(bondId);
       
-      // Delete cash flows first (foreign key constraint)
       const { error: cashFlowError } = await supabase
         .from('cash_flows')
         .delete()
         .eq('bond_id', bondId);
 
-      if (cashFlowError && cashFlowError.code !== 'PGRST116') { // PGRST116 = no rows found, which is fine
+      if (cashFlowError && cashFlowError.code !== 'PGRST116') {
         throw cashFlowError;
       }
 
-      // Delete bond analysis
       const { error: analysisError } = await supabase
         .from('bond_analysis')
         .delete()
@@ -166,7 +162,6 @@ const BondList: React.FC = () => {
         throw analysisError;
       }
 
-      // Delete the bond
       const { error: bondError } = await supabase
         .from('bonds')
         .delete()
@@ -175,7 +170,6 @@ const BondList: React.FC = () => {
 
       if (bondError) throw bondError;
 
-      // Update local state
       setBonds(prevBonds => prevBonds.filter(bond => bond.id !== bondId));
       
       toast.success(`Bono "${bondName}" eliminado exitosamente`);
@@ -201,7 +195,6 @@ const BondList: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Bonos</h1>
@@ -220,7 +213,6 @@ const BondList: React.FC = () => {
         )}
       </div>
 
-      {/* Stats Cards */}
       {bonds.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="hover:shadow-md transition-shadow">
@@ -272,7 +264,6 @@ const BondList: React.FC = () => {
         </div>
       )}
 
-      {/* Bonds Table */}
       <Card className="shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">

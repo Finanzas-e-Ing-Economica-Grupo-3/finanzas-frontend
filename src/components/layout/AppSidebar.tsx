@@ -20,7 +20,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Componente del logo BondFlow (versión más grande)
 const BondFlowLogo: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <svg viewBox="0 0 280 80" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +34,6 @@ const BondFlowLogo: React.FC<{ className?: string }> = ({ className }) => {
         </linearGradient>
       </defs>
       
-      {/* Símbolo principal: Gráfico de barras más grande */}
       <g transform="translate(5, 10)">
         <rect x="0" y="50" width="70" height="3" fill="url(#primaryGradient)" opacity="0.3"/>
         
@@ -56,13 +54,11 @@ const BondFlowLogo: React.FC<{ className?: string }> = ({ className }) => {
         <path d="M10 45 Q25 40 40 35 Q55 30 70 20" stroke="url(#primaryGradient)" strokeWidth="2" fill="none" opacity="0.7" strokeDasharray="4,3"/>
       </g>
       
-      {/* Texto BondFlow más grande */}
       <g transform="translate(85, 8)">
         <text x="0" y="28" fontFamily="'Arial', sans-serif" fontSize="28" fontWeight="bold" fill="url(#primaryGradient)">Bond</text>
         <text x="0" y="55" fontFamily="'Arial', sans-serif" fontSize="28" fontWeight="300" fill="url(#accentGradient)">Flow</text>
       </g>
       
-      {/* Puntos decorativos más visibles */}
       <circle cx="240" cy="20" r="2" fill="url(#accentGradient)" opacity="0.7">
         <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite"/>
       </circle>
@@ -76,7 +72,6 @@ const BondFlowLogo: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
-// Versión del icono más grande para móviles
 const BondFlowIcon: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <svg viewBox="0 0 80 80" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -118,7 +113,7 @@ interface NavItem {
   icon: React.ReactNode;
   label: string;
   badge?: number;
-  roles: string[]; // Roles que pueden ver este item
+  roles: string[];
 }
 
 const AppSidebar: React.FC = () => {
@@ -192,7 +187,6 @@ const AppSidebar: React.FC = () => {
     return location.pathname === path;
   };
 
-  // Configuración de navegación por rol
   const getNavigationItems = (): NavItem[] => {
     const baseItems: NavItem[] = [
       {
@@ -287,7 +281,6 @@ const AppSidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Role Badge */}
       {userRole && (
         <div className="px-4 mb-4">
           <div className="hidden md:block">
@@ -333,7 +326,6 @@ const AppSidebar: React.FC = () => {
         ))}
       </div>
 
-      {/* Quick Actions for specific roles */}
       {userRole === "issuer" && (
         <div className="px-2 mb-4">
           <div className="hidden md:block">

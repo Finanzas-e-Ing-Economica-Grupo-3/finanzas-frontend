@@ -1,5 +1,3 @@
-// utils/typeTransformers.ts - Utilidades para transformar entre tipos de DB y aplicación
-
 import { 
   Investment, 
   DatabaseInvestment, 
@@ -16,7 +14,6 @@ import {
 
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-// Transformadores para Inversiones
 export const transformDatabaseInvestment = (
   dbInvestment: Tables<'investments'>,
   bondData?: any
@@ -56,7 +53,6 @@ export const transformInvestmentToDatabase = (
   };
 };
 
-// Transformadores para Bonos del Marketplace
 export const transformToMarketplaceBond = (
   bond: Tables<'bonds'>,
   issuerName?: string,
@@ -88,7 +84,6 @@ export const transformToMarketplaceBond = (
   };
 };
 
-// Transformadores para Notificaciones
 export const transformDatabaseNotification = (
   dbNotification: Tables<'notifications'>
 ): Notification => {
@@ -116,7 +111,6 @@ export const transformNotificationToDatabase = (
   };
 };
 
-// Transformadores para Ofertas de Bonos
 export const transformDatabaseBondOffering = (
   dbOffering: Tables<'bond_offerings'>
 ): BondOffering => {
@@ -154,7 +148,6 @@ export const transformBondOfferingToDatabase = (
   };
 };
 
-// Transformadores para Transacciones
 export const transformDatabaseTransaction = (
   dbTransaction: Tables<'transactions'>
 ): Transaction => {
@@ -185,7 +178,6 @@ export const transformTransactionToDatabase = (
   };
 };
 
-// Transformadores para Ratings
 export const transformDatabaseBondRating = (
   dbRating: Tables<'bond_ratings'>
 ): BondRating => {
@@ -214,7 +206,6 @@ export const transformBondRatingToDatabase = (
   };
 };
 
-// Funciones auxiliares
 export const getFrequencyText = (frequency: number): string => {
   switch (frequency) {
     case 1: return 'anuales';
@@ -273,8 +264,7 @@ export const calculateInvestmentMetrics = (investment: Investment) => {
   
   const daysToMaturity = Math.max(0, Math.floor((maturityDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)));
   
-  // Cálculo simplificado del valor actual
-  const timeHeld = daysHeld / 365.25; // años
+  const timeHeld = daysHeld / 365.25;
   const annualRate = investment.bond.interest_rate / 100;
   const expectedReturn = investment.amount * annualRate * timeHeld;
   const currentValue = investment.amount + expectedReturn;
@@ -289,7 +279,6 @@ export const calculateInvestmentMetrics = (investment: Investment) => {
   };
 };
 
-// Validadores de tipos
 export const isValidInvestmentStatus = (status: string): status is 'active' | 'matured' | 'cancelled' => {
   return ['active', 'matured', 'cancelled'].includes(status);
 };
@@ -306,7 +295,6 @@ export const isValidOfferingStatus = (status: string): status is 'pending' | 'op
   return ['pending', 'open', 'closed', 'cancelled'].includes(status);
 };
 
-// Constantes útiles
 export const INVESTMENT_STATUS_LABELS = {
   active: 'Activa',
   matured: 'Vencida',

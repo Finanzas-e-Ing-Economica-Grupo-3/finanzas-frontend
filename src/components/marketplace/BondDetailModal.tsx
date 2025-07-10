@@ -50,7 +50,6 @@ export const BondDetailModal: React.FC<BondDetailModalProps> = ({
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    {/* Header con botón PDF */}
                     <div className="flex justify-between items-center">
                         <h3 className="text-lg font-semibold">Análisis Detallado del Bono</h3>
                         <Button
@@ -255,7 +254,6 @@ export const BondDetailModal: React.FC<BondDetailModalProps> = ({
                                             </TableBody>
                                         </Table>
                                     </div>
-                                    {/* Resumen al final */}
                                     <div className="border-t bg-muted/20 p-4">
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                             <div className="text-center">
