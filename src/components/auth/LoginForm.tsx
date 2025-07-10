@@ -28,7 +28,7 @@ const LoginForm: React.FC = () => {
       if (error) throw error;
       
       toast.success("Login exitoso");
-      navigate("/bonds");
+      navigate("/profile");
     } catch (error) {
       console.error("Error signing in:", error);
       toast.error("Error al iniciar sesión: " + (error as Error).message);
