@@ -176,8 +176,8 @@ function calculateTCEA(bond: Bond, cashFlow: CashFlow[]): number {
   const periodicRate = calculateIRR(flows);
   
   // Convert periodic rate to annual effective rate
-  const annualRate = Math.pow(1 + periodicRate, bond.frequency) - 1;
-  return annualRate * 100;
+  const annualRate = (Math.pow(1 + periodicRate, bond.frequency) - 1) * 100;
+  return annualRate;
 }
 
 // Calculate TREA (Tasa de Rendimiento Efectiva Anual) - Investor perspective  
@@ -187,8 +187,8 @@ function calculateTREA(marketPrice: number, cashFlow: CashFlow[], frequency: num
   const periodicRate = calculateIRR(flows);
   
   // Convert periodic rate to annual effective rate
-  const annualRate = Math.pow(1 + periodicRate, frequency) - 1;
-  return annualRate * 100;
+  const annualRate = (Math.pow(1 + periodicRate, frequency) - 1) * 100;
+  return annualRate;
 }
 
 // Calculate Internal Rate of Return (IRR) using Newton-Raphson method

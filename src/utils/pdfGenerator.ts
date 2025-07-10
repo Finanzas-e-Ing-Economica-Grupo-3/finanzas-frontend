@@ -290,8 +290,8 @@ export function generateBondReportPDF(
   doc.setTextColor(0, 0, 0);
   
   const profitabilityData = [
-    `• TCEA (Costo Efectivo Anual): ${(analysis.effectiveCostRate * 100).toFixed(2)}%`,
-    `• TREA (Rendimiento Efectivo Anual): ${(analysis.effectiveYieldRate * 100).toFixed(2)}%`,
+    `• TCEA (Costo Efectivo Anual): ${(analysis.effectiveCostRate).toFixed(2)}%`,
+    `• TREA (Rendimiento Efectivo Anual): ${(analysis.effectiveYieldRate).toFixed(2)}%`,
     `• Precio de mercado actual: ${formatCurrency(analysis.marketPrice, bond.settings.currency)}`,
     `• Prima/Descuento vs. Nominal: ${formatCurrency(analysis.marketPrice - bond.nominalValue, bond.settings.currency)} (${(((analysis.marketPrice - bond.nominalValue) / bond.nominalValue) * 100).toFixed(2)}%)`,
     `• Duración de Macaulay: ${analysis.duration.toFixed(2)} años`,
