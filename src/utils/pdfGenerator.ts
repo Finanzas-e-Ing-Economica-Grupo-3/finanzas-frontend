@@ -91,11 +91,11 @@ export function generateBondReportPDF(
   doc.setFontSize(11);
   const analysisInfo = [
     ['Precio de Mercado:', formatCurrency(analysis.marketPrice, bond.settings.currency)],
-    ['Duración (Macaulay):', `${analysis.duration.toFixed(4)} años`],
-    ['Duración Modificada:', `${analysis.modifiedDuration.toFixed(4)} años`],
-    ['Convexidad:', analysis.convexity.toFixed(4)],
-    ['TCEA (Costo Efectivo):', `${(analysis.effectiveCostRate * 100).toFixed(4)}%`],
-    ['TREA (Rendimiento Efectivo):', `${(analysis.effectiveYieldRate * 100).toFixed(4)}%`]
+    ['Duración (Macaulay):', `${analysis.duration.toFixed(2)} años`],
+    ['Duración Modificada:', `${analysis.modifiedDuration.toFixed(2)} años`],
+    ['Convexidad:', analysis.convexity.toFixed(2)],
+    ['TCEA (Costo Efectivo):', `${(analysis.effectiveCostRate * 100).toFixed(2)}%`],
+    ['TREA (Rendimiento Efectivo):', `${(analysis.effectiveYieldRate * 100).toFixed(2)}%`]
   ];
   
   analysisInfo.forEach(([label, value]) => {

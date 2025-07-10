@@ -204,8 +204,8 @@ const BondDetailComponent: React.FC = () => {
   const formatPercentage = (value: number | undefined): string => {
     if (value === undefined) return "";
     return `${value.toLocaleString('es-PE', {
-      minimumFractionDigits: 4,
-      maximumFractionDigits: 4,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     })}%`;
   };
 
@@ -278,7 +278,9 @@ const BondDetailComponent: React.FC = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Tipo de Amortización</p>
                 <p className="font-medium">
-                  {bond.amortizationType === "American"}
+                  {bond.amortizationType === "American"
+                    ? "Americana"
+                    : "No definido"}
                 </p>
               </div>
               <div>
@@ -327,15 +329,27 @@ const BondDetailComponent: React.FC = () => {
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
                 <p className="text-sm text-muted-foreground">Duración</p>
-                <p className="font-medium">{bondAnalysis.duration.toFixed(4)} años</p>
+                <p className="font-medium">
+                {bondAnalysis.duration !== undefined && !isNaN(bondAnalysis.duration)
+                ? `${bondAnalysis.duration.toFixed(2)} años`
+                : "No disponible"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Duración Modificada</p>
-                <p className="font-medium">{bondAnalysis.modifiedDuration.toFixed(4)} años</p>
+                <p className="font-medium">
+                {bondAnalysis.modifiedDuration !== undefined && !isNaN(bondAnalysis.modifiedDuration)
+                  ? `${bondAnalysis.modifiedDuration.toFixed(2)} años`
+                  : "No disponible"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Convexidad</p>
-                <p className="font-medium">{bondAnalysis.convexity.toFixed(4)}</p>
+                <p className="font-medium">
+                  {bondAnalysis.convexity !== undefined && !isNaN(bondAnalysis.convexity)
+                    ? bondAnalysis.convexity.toFixed(2)
+                    : "No disponible"}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">TCEA (Emisor)</p>

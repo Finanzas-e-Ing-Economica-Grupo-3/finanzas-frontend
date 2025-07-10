@@ -6,6 +6,7 @@ export interface MarketplaceBond {
   term: number;
   frequency: number;
   currency: string;
+  capitalization?: string;
   emission_date: string;
   amortization_type: string;
   grace_type: string;
