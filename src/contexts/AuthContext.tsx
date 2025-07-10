@@ -28,21 +28,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         async (event, currentSession) => {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
+
           const userId = currentSession?.user?.id;
           if (userId) {
             localStorage.setItem('currentUserId', userId);
-          }
 
-          // Obtener el rol desde la tabla profiles
-          if (userId) {
-            const { data: profile, error } = await supabase
+            // Obtener el rol de forma asíncrona, sin bloquear el flujo
+            supabase
               .from('profiles')
               .select('role')
               .eq('id', userId)
-              .single();
-            if (!error && profile?.role) {
-              localStorage.setItem('currentUserRole', profile.role);
-            }
+              .single()
+              .then(({ data: profile, error }) => {
+                if (!error && profile?.role) {
+                  localStorage.setItem('currentUserRole', profile.role);
+                } else {
+                  localStorage.removeItem('currentUserRole');
+                }
+              });
+          } else {
+            localStorage.removeItem('currentUserId');
+            localStorage.removeItem('currentUserRole');
           }
 
           setLoading(false);
@@ -56,17 +62,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userId = currentSession?.user?.id;
       if (userId) {
         localStorage.setItem('currentUserId', userId);
-      }
-      if (userId) {
-        const { data: profile, error } = await supabase
+
+        // Obtener el rol de forma asíncrona
+        supabase
           .from('profiles')
           .select('role')
           .eq('id', userId)
-          .single();
-        if (!error && profile?.role) {
-          localStorage.setItem('currentUserRole', profile.role);
-        }
+          .single()
+          .then(({ data: profile, error }) => {
+            if (!error && profile?.role) {
+              localStorage.setItem('currentUserRole', profile.role);
+            } else {
+              localStorage.removeItem('currentUserRole');
+            }
+          });
+      } else {
+        localStorage.removeItem('currentUserId');
+        localStorage.removeItem('currentUserRole');
       }
+
       setLoading(false);
 
       return () => {
