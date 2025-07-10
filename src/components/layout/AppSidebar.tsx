@@ -235,12 +235,6 @@ const AppSidebar: React.FC = () => {
           icon: <Wallet size={20} />,
           label: "Mi Portfolio",
           roles: ["investor"]
-        },
-        {
-          to: "/notifications",
-          icon: <Bell size={20} />,
-          label: "Notificaciones",
-          roles: ["investor"]
         }
       );
     }
