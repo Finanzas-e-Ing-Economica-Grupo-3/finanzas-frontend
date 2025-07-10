@@ -36,6 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
+      const userId = currentSession?.user?.id;
+      localStorage.setItem('currentUserId', userId);
+      const role = currentSession?.user?.user_metadata?.role;
+      localStorage.setItem('currentUserRole', role);
       setLoading(false);
 
       return () => {
@@ -43,12 +47,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     };
 
-    const unsubscribe = setupAuth();
+    let cleanup: (() => void) | undefined;
+
+    setupAuth().then((fn) => {
+      cleanup = fn;
+    });
 
     return () => {
       // Clean up subscription when component unmounts
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
+      if (typeof cleanup === 'function') {
+        cleanup();
       }
     };
   }, []);

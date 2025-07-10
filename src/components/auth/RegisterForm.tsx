@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ const RegisterForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<"investor" | "issuer">("investor");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +35,8 @@ const RegisterForm: React.FC = () => {
         password,
         options: {
           data: {
-            name: name
+            name: name,
+            role: role
           }
         }
       });
@@ -61,6 +64,18 @@ const RegisterForm: React.FC = () => {
       <CardContent>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="role">Tipo de usuario</Label>
+              <Select value={role} onValueChange={value => setRole(value as "investor" | "issuer")}> 
+                <SelectTrigger id="role" className="h-12">
+                  <SelectValue placeholder="Selecciona un rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="investor">Inversionista</SelectItem>
+                  <SelectItem value="issuer">Emisor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="name">Nombre</Label>
               <Input 

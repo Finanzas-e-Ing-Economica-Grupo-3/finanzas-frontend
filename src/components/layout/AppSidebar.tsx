@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Home, BarChart3, Settings, User, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Home, 
+  BarChart3, 
+  Settings, 
+  User, 
+  LogOut, 
+  TrendingUp, 
+  ShoppingCart, 
+  Wallet,
+  FileText,
+  Plus,
+  Bell
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 // Componente del logo BondFlow (versión más grande)
@@ -99,9 +113,62 @@ const BondFlowIcon: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
+interface NavItem {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  badge?: number;
+  roles: string[]; // Roles que pueden ver este item
+}
+
 const AppSidebar: React.FC = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserRole();
+      fetchNotificationCount();
+    }
+  }, [user]);
+
+  const fetchUserRole = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user!.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      setUserRole(data?.role || null);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchNotificationCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user!.id)
+        .eq('read', false);
+
+      if (error) throw error;
+      setNotificationCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -116,8 +183,103 @@ const AppSidebar: React.FC = () => {
     if (path === "/bonds" && location.pathname !== "/bonds") {
       return location.pathname.startsWith("/bonds/");
     }
+    if (path === "/marketplace" && location.pathname !== "/marketplace") {
+      return location.pathname.startsWith("/marketplace/");
+    }
+    if (path === "/portfolio" && location.pathname !== "/portfolio") {
+      return location.pathname.startsWith("/portfolio/");
+    }
     return location.pathname === path;
   };
+
+  // Configuración de navegación por rol
+  const getNavigationItems = (): NavItem[] => {
+    const baseItems: NavItem[] = [
+      {
+        to: "/profile",
+        icon: <User size={20} />,
+        label: "Perfil",
+        roles: ["investor", "issuer", "admin"]
+      }
+    ];
+
+    const roleSpecificItems: NavItem[] = [];
+
+    if (userRole === "issuer") {
+      roleSpecificItems.push(
+        {
+          to: "/bonds",
+          icon: <FileText size={20} />,
+          label: "Mis Bonos",
+          roles: ["issuer"]
+        },
+        {
+          to: "/bonds/new",
+          icon: <Plus size={20} />,
+          label: "Crear Bono",
+          roles: ["issuer"]
+        },
+      );
+    }
+
+    if (userRole === "investor") {
+      roleSpecificItems.push(
+        {
+          to: "/marketplace",
+          icon: <ShoppingCart size={20} />,
+          label: "Marketplace",
+          roles: ["investor"]
+        },
+        {
+          to: "/portfolio",
+          icon: <Wallet size={20} />,
+          label: "Mi Portfolio",
+          roles: ["investor"]
+        },
+        {
+          to: "/notifications",
+          icon: <Bell size={20} />,
+          label: "Notificaciones",
+          roles: ["investor"]
+        }
+      );
+    }
+
+    if (userRole === "admin") {
+      roleSpecificItems.push(
+        {
+          to: "/admin/bonds",
+          icon: <FileText size={20} />,
+          label: "Todos los Bonos",
+          roles: ["admin"]
+        },
+        {
+          to: "/admin/users",
+          icon: <User size={20} />,
+          label: "Usuarios",
+          roles: ["admin"]
+        },
+        {
+          to: "/admin/marketplace",
+          icon: <TrendingUp size={20} />,
+          label: "Marketplace",
+          roles: ["admin"]
+        }
+      );
+    }
+
+    return [...roleSpecificItems, ...baseItems];
+  };
+
+  const navigationItems = getNavigationItems();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-16 md:w-64 bg-sidebar-background border-r border-sidebar-border flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-bond-green"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-16 md:w-64 bg-sidebar-background border-r border-sidebar-border flex flex-col">
@@ -130,21 +292,89 @@ const AppSidebar: React.FC = () => {
           <BondFlowIcon className="h-12 w-12" />
         </div>
       </div>
+
+      {/* Role Badge */}
+      {userRole && (
+        <div className="px-4 mb-4">
+          <div className="hidden md:block">
+            <Badge 
+              variant="secondary" 
+              className={cn(
+                "w-full justify-center text-xs font-medium",
+                userRole === "investor" && "bg-blue-100 text-blue-800",
+                userRole === "issuer" && "bg-green-100 text-green-800",
+                userRole === "admin" && "bg-purple-100 text-purple-800"
+              )}
+            >
+              {userRole === "investor" && "🔍 Inversionista"}
+              {userRole === "issuer" && "🏢 Emisor"}
+              {userRole === "admin" && "👑 Administrador"}
+            </Badge>
+          </div>
+          <div className="md:hidden flex justify-center">
+            <div className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center text-xs",
+              userRole === "investor" && "bg-blue-100 text-blue-800",
+              userRole === "issuer" && "bg-green-100 text-green-800",
+              userRole === "admin" && "bg-purple-100 text-purple-800"
+            )}>
+              {userRole === "investor" && "🔍"}
+              {userRole === "issuer" && "🏢"}
+              {userRole === "admin" && "👑"}
+            </div>
+          </div>
+        </div>
+      )}
       
-      <div className="mt-8 space-y-2 px-2">
-        <NavItem
-          to="/bonds"
-          icon={<Home size={20} />}
-          label="Bonos"
-          isActive={isLinkActive("/bonds")}
-        />
-        <NavItem
-          to="/profile"
-          icon={<User size={20} />}
-          label="Perfil"
-          isActive={isLinkActive("/profile")}
-        />
+      <div className="mt-2 space-y-1 px-2 flex-1">
+        {navigationItems.map((item) => (
+          <NavItem
+            key={item.to}
+            to={item.to}
+            icon={item.icon}
+            label={item.label}
+            badge={item.badge}
+            isActive={isLinkActive(item.to)}
+          />
+        ))}
       </div>
+
+      {/* Quick Actions for specific roles */}
+      {userRole === "issuer" && (
+        <div className="px-2 mb-4">
+          <div className="hidden md:block">
+            <div className="text-xs text-muted-foreground px-3 mb-2">Acciones Rápidas</div>
+            <Link to="/bonds/new">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs bg-bond-green/10 hover:bg-bond-green/20 border-bond-green/20"
+              >
+                <Plus size={16} className="mr-2" />
+                Nuevo Bono
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {userRole === "investor" && (
+        <div className="px-2 mb-4">
+          <div className="hidden md:block">
+            <div className="text-xs text-muted-foreground px-3 mb-2">Acciones Rápidas</div>
+            <Link to="/marketplace">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start text-xs bg-bond-blue/10 hover:bg-bond-blue/20 border-bond-blue/20"
+              >
+                <TrendingUp size={16} className="mr-2" />
+                Explorar Bonos
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="mt-auto p-2">
         <Button
@@ -164,10 +394,11 @@ interface NavItemProps {
   to: string;
   icon: React.ReactNode;
   label: string;
+  badge?: number;
   isActive: boolean;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ to, icon, label, isActive }) => {
+const NavItem: React.FC<NavItemProps> = ({ to, icon, label, badge, isActive }) => {
   return (
     <Link to={to}>
       <Button
@@ -177,8 +408,26 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, isActive }) => {
           isActive && "bg-sidebar-accent text-sidebar-primary font-medium"
         )}
       >
-        <span className="md:mr-2">{icon}</span>
-        <span className="hidden md:inline">{label}</span>
+        <span className="md:mr-2 relative">
+          {icon}
+          {badge && badge > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs flex items-center justify-center"
+            >
+              {badge > 99 ? '99+' : badge}
+            </Badge>
+          )}
+        </span>
+        <span className="hidden md:inline flex-1 text-left">{label}</span>
+        {badge && badge > 0 && (
+          <Badge 
+            variant="destructive" 
+            className="hidden md:flex h-5 w-5 p-0 text-xs items-center justify-center ml-auto"
+          >
+            {badge > 99 ? '99+' : badge}
+          </Badge>
+        )}
       </Button>
     </Link>
   );

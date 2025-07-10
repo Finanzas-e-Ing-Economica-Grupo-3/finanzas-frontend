@@ -16,6 +16,10 @@ import EditBond from "./pages/EditBond";
 import BondDetail from "./pages/BondDetail";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import RoleBasedRoute from "./components/RoleBasedRoute";
+import Marketplace from "./pages/Marketplace";
+import Portfolio from "./pages/Portfolio";
+import Notifications from "./pages/Notification";
 
 const queryClient = new QueryClient();
 
@@ -28,14 +32,73 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/bonds" element={<ProtectedRoute><Bonds /></ProtectedRoute>} />
-              <Route path="/bonds/new" element={<ProtectedRoute><NewBond /></ProtectedRoute>} />
-              <Route path="/bonds/:id" element={<ProtectedRoute><BondDetail /></ProtectedRoute>} />
-              <Route path="/bonds/:id/edit" element={<ProtectedRoute><EditBond /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+
+              {/* Rutas para Emisores */}
+              <Route path="/bonds" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["issuer", "admin"]}>
+                    <Bonds />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/bonds/new" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["issuer", "admin"]}>
+                    <NewBond />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/bonds/:id/edit" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["issuer", "admin"]}>
+                    <EditBond />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/bonds/:id" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["issuer", "admin"]}>
+                    <BondDetail />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+              
+              {/* Rutas para Inversionistas */}
+              <Route path="/marketplace" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["investor", "admin"]}>
+                    <Marketplace />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/portfolio" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["investor", "admin"]}>
+                    <Portfolio />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
+
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={["investor", "admin"]}>
+                    <Notifications />
+                  </RoleBasedRoute>
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
